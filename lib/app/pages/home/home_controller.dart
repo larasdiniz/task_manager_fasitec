@@ -13,6 +13,27 @@ class HomeController extends Cubit<HomeState> {
 
     final List<TaskModel> taskList = await _taskRepository.getAllTasks();
 
-    emit(state.copyWith(status: BaseStatus.loaded, taskList: taskList));
+    int tasksInProgress = 0;
+    int tasksFinalizado = 0;
+    
+    for (var task in taskList) {
+      final statusString = task.status.toString();
+      
+      if (statusString.contains('emProgresso')) {
+        tasksInProgress++;
+      }
+      if (statusString.contains('finalizado')) {
+        tasksFinalizado++;
+      }
+    }
+    
+    final completionRate = taskList.isEmpty ? 0.0 : (tasksFinalizado / taskList.length) * 100;
+
+    emit(state.copyWith(
+      status: BaseStatus.loaded,
+      taskList: taskList,
+      tasksInProgress: tasksInProgress,
+      completionRate: completionRate,
+    ));
   }
 }
