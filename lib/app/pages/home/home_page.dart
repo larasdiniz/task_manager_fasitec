@@ -4,6 +4,8 @@ import 'package:sizer/sizer.dart';
 import 'package:task_manager/app/core/ui/base_state/base_state.dart';
 import 'package:task_manager/app/core/ui/base_state/base_status.dart'; 
 import 'package:task_manager/app/core/enums/task_status_enum.dart';
+import 'package:task_manager/app/core/ui/extensions/size_extensions.dart';
+import 'package:task_manager/app/core/ui/extensions/text_style_extensions.dart';
 import 'package:task_manager/app/pages/home/home_controller.dart';
 import 'package:task_manager/app/pages/home/home_state.dart';
 
@@ -21,19 +23,17 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
     super.onReady();
   }
 
-  // Função para determinar a cor baseada no status REAL da API
   Color _getTaskColor(TaskStatus status) {
     switch (status) {
       case TaskStatus.finalizado:
-        return const Color(0xFFB991FF); 
+        return const Color(0xFF1A56DB); 
       case TaskStatus.emProgresso:
-        return const Color(0xFF4CAF50);
+        return const Color(0xFF2E7D32); 
       case TaskStatus.emAberto:
-        return const Color(0xFFE6C026); 
+        return const Color(0xFFF57C00);
     }
   }
 
-  // Texto amigável para o status
   String _getStatusText(TaskStatus status) {
     switch (status) {
       case TaskStatus.finalizado:
@@ -45,7 +45,6 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
     }
   }
 
-  // Verifica se a tarefa está concluída
   bool _isCompleted(TaskStatus status) {
     return status == TaskStatus.finalizado;
   }
@@ -55,15 +54,13 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       
-      // AppBar
       appBar: AppBar(
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
         centerTitle: true,
         title: Text(
           'Tarefas',
-          style: TextStyle(
-            fontSize: 20.sp,
+          style: TextStyle().largeText.copyWith(
             fontWeight: FontWeight.bold,
             color: Theme.of(context).appBarTheme.titleTextStyle?.color,
           ),
@@ -85,14 +82,12 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
       body: SafeArea(
         child: BlocBuilder<HomeController, HomeState>(
           builder: (context, state) {
-            // Verifica se está carregando
             if (state.status == BaseStatus.loading) {
               return Center(
                 child: CircularProgressIndicator(),
               );
             }
 
-            // Verifica se há erro
             if (state.status == BaseStatus.error) {
               return Center(
                 child: Column(
@@ -106,10 +101,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                     SizedBox(height: 16),
                     Text(
                       'Erro ao carregar tarefas',
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        color: Colors.red,
-                      ),
+                      style: TextStyle().mediumText.copyWith(color: Colors.red),
                     ),
                   ],
                 ),
@@ -119,9 +111,11 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Cards principais
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: context.percentWidth(0.05),
+                    vertical: 16,
+                  ),
                   child: Row(
                     children: [
                       Expanded(
@@ -129,7 +123,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                           padding: EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [Color(0xFFA069FF), Color(0xFFB991FF)],
+                              colors: [Color(0xFF1E40AF), Color(0xFF2563EB)], 
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                             ),
@@ -140,9 +134,8 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                             children: [
                               Text(
                                 "Taxa de conclusão",
-                                style: TextStyle(
+                                style: TextStyle().smallText.copyWith(
                                   color: Colors.white,
-                                  fontSize: 14.sp,
                                 ),
                               ),
                               SizedBox(height: 8),
@@ -151,9 +144,8 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                                 children: [
                                   Text(
                                     "${state.completionRate.toStringAsFixed(0)}%",
-                                    style: TextStyle(
+                                    style: TextStyle().largeText.copyWith(
                                       color: Colors.white,
-                                      fontSize: 24.sp,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -175,8 +167,8 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: Theme.of(context).brightness == Brightness.dark
-                                  ? [const Color(0xFF2A2A3D), const Color(0xFF1E1E2C)]
-                                  : [const Color(0xFFC8B6F3), const Color(0xFFE0D9F0)],
+                                  ? [const Color(0xFF1E3A8A), const Color(0xFF1D4ED8)] 
+                                  : [const Color(0xFFDBEAFE), const Color(0xFFBFDBFE)], 
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                             ),
@@ -187,11 +179,10 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                             children: [
                               Text(
                                 "Em andamento",
-                                style: TextStyle(
+                                style: TextStyle().smallText.copyWith(
                                   color: Theme.of(context).brightness == Brightness.dark 
                                       ? Colors.white70 
-                                      : const Color(0xFF413491),
-                                  fontSize: 14.sp,
+                                      : const Color(0xFF1E40AF), 
                                 ),
                               ),
                               SizedBox(height: 8),
@@ -203,22 +194,20 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                                     children: [
                                       Text(
                                         "${state.tasksInProgress}",
-                                        style: TextStyle(
+                                        style: TextStyle().largeText.copyWith(
                                           color: Theme.of(context).brightness == Brightness.dark 
                                               ? Colors.white70 
-                                              : const Color(0xFF413491),
-                                          fontSize: 24.sp,
+                                              : const Color(0xFF1E40AF), 
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                       SizedBox(width: 4),
                                       Text(
                                         "tarefas",
-                                        style: TextStyle(
+                                        style: TextStyle().smallText.copyWith(
                                           color: Theme.of(context).brightness == Brightness.dark 
                                               ? Colors.white70 
-                                              : const Color(0xFF413491),
-                                          fontSize: 14.sp,
+                                              : const Color(0xFF1E40AF), 
                                         ),
                                       ),
                                     ],
@@ -227,7 +216,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                                     Icons.directions_run,
                                     color: Theme.of(context).brightness == Brightness.dark 
                                         ? Colors.white70 
-                                        : const Color(0xFF413491),
+                                        : const Color(0xFF1E40AF), 
                                     size: 28,
                                   ),
                                 ],
@@ -240,9 +229,10 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                   ),
                 ),
 
-                // Filtros
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: context.percentWidth(0.05),
+                  ),
                   child: Row(
                     children: [
                       Expanded(
@@ -251,7 +241,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                           padding: EdgeInsets.symmetric(horizontal: 12),
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [Color(0xFFA069FF), Color(0xFFB991FF)],
+                              colors: [Color(0xFF1E40AF), Color(0xFF2563EB)], 
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                             ),
@@ -261,9 +251,8 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                             children: [
                               Text(
                                 "Prioridade",
-                                style: TextStyle(
+                                style: TextStyle().smallText.copyWith(
                                   color: Colors.white,
-                                  fontSize: 14.sp,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -272,17 +261,17 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                                 child: DropdownButtonHideUnderline(
                                   child: DropdownButton<String>(
                                     value: 'Todas',
-                                    dropdownColor: const Color(0xFFA069FF),
+                                    dropdownColor: const Color(0xFF1E40AF),
                                     iconEnabledColor: Colors.white,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14.sp,
-                                    ),
+                                    style: TextStyle().smallText.copyWith(color: Colors.white),
                                     items: ['Todas', 'Alta', 'Média', 'Baixa']
                                         .map(
                                           (p) => DropdownMenuItem(
                                             value: p,
-                                            child: Text(p),
+                                            child: Text(
+                                              p,
+                                              style: TextStyle().smallText.copyWith(color: Colors.white),
+                                            ),
                                           ),
                                         )
                                         .toList(),
@@ -301,8 +290,8 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                           padding: EdgeInsets.symmetric(horizontal: 12),
                           decoration: BoxDecoration(
                             color: Theme.of(context).brightness == Brightness.dark 
-                                ? const Color(0xFF2A2A3D) 
-                                : const Color(0xFFE0D9F0),
+                                ? const Color(0xFF1E3A8A) 
+                                : const Color(0xFFDBEAFE),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: DropdownButtonHideUnderline(
@@ -313,20 +302,26 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                                 size: 24,
                                 color: Theme.of(context).brightness == Brightness.dark 
                                     ? Colors.white70 
-                                    : const Color(0xFF413491),
+                                    : const Color(0xFF1E40AF), 
                               ),
-                              style: TextStyle(
+                              style: TextStyle().smallText.copyWith(
                                 color: Theme.of(context).brightness == Brightness.dark 
                                     ? Colors.white70 
-                                    : const Color(0xFF413491),
-                                fontSize: 14.sp,
+                                    : const Color(0xFF1E40AF), 
                                 fontWeight: FontWeight.bold,
                               ),
                               items: ['Prazo', 'Prioridade', 'Alfabética']
                                   .map(
                                     (opcao) => DropdownMenuItem(
                                       value: opcao,
-                                      child: Text(opcao),
+                                      child: Text(
+                                        opcao,
+                                        style: TextStyle().smallText.copyWith(
+                                          color: Theme.of(context).brightness == Brightness.dark 
+                                              ? Colors.white70 
+                                              : const Color(0xFF1E40AF), 
+                                        ),
+                                      ),
                                     ),
                                   )
                                   .toList(),
@@ -341,7 +336,6 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
 
                 SizedBox(height: 20),
 
-                // Lista de tarefas
                 Expanded(
                   child: _buildTaskList(state),
                 ),
@@ -351,7 +345,6 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
         ),
       ),
 
-      // Footer
       bottomNavigationBar: Container(
         height: 80,
         decoration: BoxDecoration(
@@ -384,7 +377,6 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
   Widget _buildTaskList(HomeState state) {
     final taskList = state.taskList;
     
-    // Verificar status inicial ou carregando
     if (state.status == BaseStatus.initial || state.status == BaseStatus.loading) {
       return Center(
         child: CircularProgressIndicator(),
@@ -404,18 +396,12 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
             SizedBox(height: 16),
             Text(
               'Nenhuma tarefa encontrada',
-              style: TextStyle(
-                fontSize: 16.sp,
-                color: Colors.grey,
-              ),
+              style: TextStyle().mediumText.copyWith(color: Colors.grey),
             ),
             SizedBox(height: 8),
             Text(
               'Clique no + para adicionar',
-              style: TextStyle(
-                fontSize: 14.sp,
-                color: Colors.grey.withOpacity(0.8),
-              ),
+              style: TextStyle().smallText.copyWith(color: Colors.grey.withOpacity(0.8)),
             ),
           ],
         ),
@@ -423,7 +409,9 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
     }
 
     return ListView.builder(
-      padding: EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(
+        horizontal: context.percentWidth(0.05),
+      ),
       itemCount: taskList.length,
       itemBuilder: (context, index) {
         final task = taskList[index];
@@ -448,12 +436,11 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
           ),
           child: Row(
             children: [
-              // Checkbox com cor baseada no status
               Container(
                 height: 24,
                 width: 24,
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
+                  borderRadius: BorderRadius.circular(6),
                   color: isCompleted ? taskColor : Colors.transparent,
                   border: Border.all(
                     color: taskColor,
@@ -475,8 +462,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                   children: [
                     Text(
                       task.titulo,
-                      style: TextStyle(
-                        fontSize: 16.sp,
+                      style: TextStyle().mediumText.copyWith(
                         fontWeight: FontWeight.w500,
                         color: isCompleted
                             ? Colors.grey
@@ -491,8 +477,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                       children: [
                         Text(
                           "Status: $statusText",
-                          style: TextStyle(
-                            fontSize: 14.sp,
+                          style: TextStyle().smallText.copyWith(
                             color: isDarkMode ? Colors.white54 : Colors.grey,
                           ),
                         ),
@@ -518,16 +503,16 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
           icon,
           size: 28,
           color: isActive
-              ? (isDarkMode ? Theme.of(context).primaryColor : const Color(0xFFA069FF))
+              ? (isDarkMode ? const Color(0xFF2563EB) : const Color(0xFF2563EB)) 
               : (isDarkMode ? Colors.white54 : Colors.grey[600]),
         ),
         SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
+          style: TextStyle().smallText.copyWith(
             fontSize: 12.sp,
             color: isActive
-                ? (isDarkMode ? Theme.of(context).primaryColor : const Color(0xFFA069FF))
+                ? (isDarkMode ? const Color(0xFF2563EB) : const Color(0xFF2563EB)) 
                 : (isDarkMode ? Colors.white54 : Colors.grey[600]),
           ),
         ),
