@@ -4,7 +4,11 @@ import 'package:task_manager/app/models/task_model.dart';
 abstract class TaskRepository {
   Future<List<TaskModel>> getAllTasks();
   
-
+  Future<TaskModel> createTask({
+    required String titulo,
+    required String descricao,
+  });
+  
   Future<TaskModel> updateTask({
     required int id,
     String? titulo,
@@ -13,11 +17,3 @@ abstract class TaskRepository {
   
   Future<void> deleteTask(int id);
 }
-
-/*
-import 'package:task_manager/app/models/task_model.dart';
-
-abstract class TaskRepository {
-  Future<List<TaskModel>> getAllTasks();
-}
-*/

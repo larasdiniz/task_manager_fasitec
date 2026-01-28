@@ -13,6 +13,7 @@ class ThemeConfig {
     brightness: Brightness.light,
     
     scaffoldBackgroundColor: _colors.white,
+    canvasColor: _colors.white,
 
     colorScheme: ColorScheme.light(
       primary: _colors.primaryBlue,
@@ -20,6 +21,11 @@ class ThemeConfig {
       background: _colors.white,
       surface: _colors.white,
       error: _colors.error,
+      onPrimary: _colors.white,
+      onSecondary: _colors.white,
+      onBackground: _colors.black,
+      onSurface: _colors.black,
+      onError: _colors.white,
     ),
 
     appBarTheme: AppBarTheme(
@@ -45,13 +51,13 @@ class ThemeConfig {
       ),
     ),
 
-
-    cardTheme: CardThemeData(
+    cardTheme: CardThemeData( 
       color: _colors.white,
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
+      margin: EdgeInsets.zero,
     ),
 
     textSelectionTheme: TextSelectionThemeData(
@@ -65,46 +71,52 @@ class ThemeConfig {
     useMaterial3: true,
     brightness: Brightness.dark,
     
-    scaffoldBackgroundColor: const Color(0xFF121212),
+    scaffoldBackgroundColor: _colors.darkBackground, 
+    canvasColor: _colors.darkBackground, 
 
     colorScheme: ColorScheme.dark(
-      primary: _colors.primaryBlue,
-      secondary: _colors.darkBlue,
-      background: const Color(0xFF121212),
-      surface: const Color(0xFF1E1E1E),
-      error: _colors.error,
+      primary: _colors.primaryBlue, 
+      secondary: _colors.darkBlue, 
+      background: _colors.darkBackground, 
+      surface: _colors.darkSurface, 
+      error: _colors.error, 
+      onPrimary: _colors.white, 
+      onSecondary: _colors.white, 
+      onBackground: _colors.white, 
+      onSurface: _colors.white, 
+      onError: _colors.white, 
     ),
 
     appBarTheme: AppBarTheme(
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: _colors.darkSurface, 
       elevation: 0,
       centerTitle: true,
-      iconTheme: const IconThemeData(color: Colors.white),
-      titleTextStyle: const TextStyle(
+      iconTheme: IconThemeData(color: _colors.white), 
+      titleTextStyle: TextStyle( 
         fontSize: 20,
         fontWeight: FontWeight.bold,
-        color: Colors.white,
+        color: _colors.white,
       ),
     ),
 
-    textTheme: const TextTheme(
+    textTheme: TextTheme( 
       bodyLarge: TextStyle(
         fontSize: 16,
-        color: Colors.white,
+        color: _colors.white,
       ),
       bodyMedium: TextStyle(
         fontSize: 14,
-        color: Colors.white70,
+        color: _colors.white.withOpacity(0.7),
       ),
     ),
 
-
-    cardTheme: CardThemeData(
-      color: const Color(0xFF1E1E1E),
+    cardTheme: CardThemeData( 
+      color: _colors.darkSurface, 
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
+      margin: EdgeInsets.zero,
     ),
 
     textSelectionTheme: TextSelectionThemeData(
@@ -113,23 +125,7 @@ class ThemeConfig {
     ),
   );
 
-
-  static ThemeData get theme => lightTheme;
+  static ThemeData getTheme(bool isDark) {
+    return isDark ? darkTheme : lightTheme;
+  }
 }
-
-/*
-import 'package:flutter/material.dart';
-import 'package:task_manager/app/core/ui/styles/colors_app.dart';
-
-class ThemeConfig {
-  ThemeConfig._();
-
-  static ColorsApp get _colorsApp => ColorsApp.i;
-
-  static final theme = ThemeData(
-    scaffoldBackgroundColor: _colorsApp.white,
-    textSelectionTheme: TextSelectionThemeData(cursorColor: ColorsApp.i.black),
-    cardTheme: CardThemeData(color: Colors.transparent, elevation: 0),
-  );
-}
-*/
