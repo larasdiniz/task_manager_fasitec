@@ -9,7 +9,12 @@ class TaskModel {
   final String descricao;
   final TaskStatus status;
 
-  TaskModel({required this.id, required this.titulo, required this.descricao, required this.status});
+  TaskModel({
+    required this.id,
+    required this.titulo,
+    required this.descricao,
+    required this.status,
+  });
 
   factory TaskModel.fromJson(Map<String, dynamic> json) {
     return TaskModel(
@@ -21,7 +26,12 @@ class TaskModel {
   }
 
   Map<String, dynamic> toJson() {
-    return {'id': id, 'titulo': titulo, 'descricao': descricao, 'status': status.label};
+    return {
+      'id': id,
+      'titulo': titulo,
+      'descricao': descricao,
+      'status': status.label,
+    };
   }
 
   String toJsonString() => jsonEncode(toJson());

@@ -1,5 +1,6 @@
 // lib/app/pages/edit/task_edit_controller.dart
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:task_manager/app/core/enums/task_status_enum.dart';
 import 'package:task_manager/app/core/ui/base_state/base_status.dart';
 import 'package:task_manager/app/models/task_model.dart';
 import 'package:task_manager/app/pages/edit/task_edit_state.dart';
@@ -17,6 +18,7 @@ class TaskEditController extends Cubit<TaskEditState> {
           task: initialTask,
           titulo: initialTask.titulo,
           descricao: initialTask.descricao,
+          selectedStatus: initialTask.status,
           status: BaseStatus.loaded,
         ));
 
@@ -32,8 +34,14 @@ class TaskEditController extends Cubit<TaskEditState> {
     }
   }
 
+  void updateStatus(TaskStatus newStatus) {
+    if (newStatus != state.selectedStatus) {
+      emit(state.copyWith(selectedStatus: newStatus));
+    }
+  }
+
   Future<bool> saveTask() async {
-    if (state.isSaving || !state.hasChanges) return false;
+    if (state.isSaving) return false;
 
     emit(state.copyWith(isSaving: true, errorMessage: null));
 
@@ -42,6 +50,7 @@ class TaskEditController extends Cubit<TaskEditState> {
         id: initialTask.id,
         titulo: state.titulo,
         descricao: state.descricao,
+        status: state.selectedStatus, 
       );
 
       emit(state.copyWith(
@@ -49,6 +58,7 @@ class TaskEditController extends Cubit<TaskEditState> {
         task: updatedTask,
         titulo: updatedTask.titulo,
         descricao: updatedTask.descricao,
+        selectedStatus: updatedTask.status,
       ));
 
       return true;

@@ -18,6 +18,17 @@ class TaskRepositoryImpl implements TaskRepository {
   }
 
   @override
+  Future<List<TaskModel>> getTasksByStatus(String status) async {
+    try {
+      final response = await api.getTasksByStatus(status);
+      final List<dynamic> decodeList = jsonDecode(response);
+      return decodeList.map((json) => TaskModel.fromJson(json)).toList();
+    } catch (e) {
+      throw Exception('Erro ao filtrar tarefas por status: $e');
+    }
+  }
+
+  @override
   Future<TaskModel> createTask({
     required String titulo,
     required String descricao,
@@ -26,7 +37,7 @@ class TaskRepositoryImpl implements TaskRepository {
       final response = await api.addTask(
         titulo: titulo,
         descricao: descricao,
-        status: TaskStatus.emAberto, // Nova tarefa sempre começa como "Em Aberto"
+        status: TaskStatus.emAberto,
       );
       
       final Map<String, dynamic> json = jsonDecode(response);
@@ -46,12 +57,14 @@ class TaskRepositoryImpl implements TaskRepository {
     required int id,
     String? titulo,
     String? descricao,
+    TaskStatus? status,
   }) async {
     try {
       final response = await api.updateTask(
         id: id,
         titulo: titulo,
         descricao: descricao,
+        status: status,
       );
       
       final Map<String, dynamic> json = jsonDecode(response);

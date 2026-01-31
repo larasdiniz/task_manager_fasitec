@@ -1,5 +1,6 @@
-// lib/app/pages/edit/task_edit_state.dart - OK
+// lib/app/pages/edit/task_edit_state.dart
 import 'package:equatable/equatable.dart';
+import 'package:task_manager/app/core/enums/task_status_enum.dart';
 import 'package:task_manager/app/core/ui/base_state/base_status.dart';
 import 'package:task_manager/app/models/task_model.dart';
 
@@ -8,6 +9,7 @@ class TaskEditState extends Equatable {
   final TaskModel? task;
   final String? titulo;
   final String? descricao;
+  final TaskStatus selectedStatus; 
   final String? errorMessage;
   final bool isSaving;
   final bool isDeleting;
@@ -17,6 +19,7 @@ class TaskEditState extends Equatable {
     this.task,
     this.titulo,
     this.descricao,
+    required this.selectedStatus,
     this.errorMessage,
     this.isSaving = false,
     this.isDeleting = false,
@@ -27,6 +30,7 @@ class TaskEditState extends Equatable {
         task = null,
         titulo = null,
         descricao = null,
+        selectedStatus = TaskStatus.emAberto, 
         errorMessage = null,
         isSaving = false,
         isDeleting = false;
@@ -37,6 +41,7 @@ class TaskEditState extends Equatable {
         task,
         titulo,
         descricao,
+        selectedStatus,
         errorMessage,
         isSaving,
         isDeleting,
@@ -47,6 +52,7 @@ class TaskEditState extends Equatable {
     TaskModel? task,
     String? titulo,
     String? descricao,
+    TaskStatus? selectedStatus,
     String? errorMessage,
     bool? isSaving,
     bool? isDeleting,
@@ -56,6 +62,7 @@ class TaskEditState extends Equatable {
       task: task ?? this.task,
       titulo: titulo ?? this.titulo,
       descricao: descricao ?? this.descricao,
+      selectedStatus: selectedStatus ?? this.selectedStatus,
       errorMessage: errorMessage ?? this.errorMessage,
       isSaving: isSaving ?? this.isSaving,
       isDeleting: isDeleting ?? this.isDeleting,
@@ -64,6 +71,8 @@ class TaskEditState extends Equatable {
 
   bool get hasChanges {
     if (task == null) return false;
-    return titulo != task?.titulo || descricao != task?.descricao;
+    return titulo != task?.titulo || 
+           descricao != task?.descricao || 
+           selectedStatus != task?.status;
   }
 }

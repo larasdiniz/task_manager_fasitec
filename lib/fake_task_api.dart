@@ -89,4 +89,21 @@ class FakeTasksApi {
 
     return jsonEncode(_tasksDatabase[index]);
   }
+
+  /// GET - Filtrar tarefas por status (MÉTODO NOVO)
+  Future<String> getTasksByStatus(String status) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    
+    List<Map<String, dynamic>> filteredTasks;
+    
+    if (status == 'Todos') {
+      filteredTasks = List.from(_tasksDatabase);
+    } else {
+      filteredTasks = _tasksDatabase
+          .where((task) => task['status'] == status)
+          .toList();
+    }
+    
+    return jsonEncode(filteredTasks);
+  }
 }

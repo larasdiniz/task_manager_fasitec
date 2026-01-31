@@ -1,3 +1,4 @@
+// lib/app/pages/edit/task_edit_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sizer/sizer.dart';
@@ -9,6 +10,7 @@ import 'package:task_manager/app/core/ui/extensions/text_style_extensions.dart';
 import 'package:task_manager/app/core/ui/styles/colors_app.dart';
 import 'package:task_manager/app/pages/edit/task_edit_controller.dart';
 import 'package:task_manager/app/pages/edit/task_edit_state.dart';
+import 'package:task_manager/app/core/enums/task_status_enum.dart';
 
 class TaskEditPage extends StatefulWidget {
   const TaskEditPage({super.key});
@@ -283,25 +285,94 @@ class _TaskEditPageState extends BaseState<TaskEditPage, TaskEditController> {
                   colors: colors,
                   isDark: isDark,
                   title: "Status",
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Chip(
-                        backgroundColor: colors.getTaskStatusColor(
-                          state.task!.status,
-                        ),
-                        label: Text(
-                          state.task!.status.label,
-                          style: TextStyle().smallText.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _getTaskColor(state.selectedStatus).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: _getTaskColor(state.selectedStatus).withOpacity(0.3),
+                                width: 1,
+                              ),
+                            ),
+                            child: Text(
+                              _getStatusText(state.selectedStatus),
+                              style: TextStyle().smallText.copyWith(
+                                color: _getTaskColor(state.selectedStatus),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
+                          Text(
+                            'Status atual',
+                            style: TextStyle().smallText.copyWith(
+                              color: isDark ? Colors.white54 : colors.gray,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 2.h),
+                      
+                      // Seletor de novo status
+                      Text(
+                        'Alterar status:',
+                        style: TextStyle().smallText.copyWith(
+                          color: isDark ? Colors.white70 : colors.darkBlue,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
+                      SizedBox(height: 1.h),
+                      
+                      // Botões para selecionar status
+                      Row(
+                        children: [
+                          // Botão Em Aberto
+                          Expanded(
+                            child: _buildStatusButton(
+                              context: context,
+                              status: TaskStatus.emAberto,
+                              currentStatus: state.selectedStatus,
+                              colors: colors,
+                            ),
+                          ),
+                          SizedBox(width: 1.h),
+                          // Botão Em Progresso
+                          Expanded(
+                            child: _buildStatusButton(
+                              context: context,
+                              status: TaskStatus.emProgresso,
+                              currentStatus: state.selectedStatus,
+                              colors: colors,
+                            ),
+                          ),
+                          SizedBox(width: 1.h),
+                          // Botão Finalizado
+                          Expanded(
+                            child: _buildStatusButton(
+                              context: context,
+                              status: TaskStatus.finalizado,
+                              currentStatus: state.selectedStatus,
+                              colors: colors,
+                            ),
+                          ),
+                        ],
+                      ),
+                      
+                      SizedBox(height: 1.h),
                       Text(
-                        'Não pode ser alterado',
+                        'Clique para mudar o status da tarefa',
                         style: TextStyle().smallText.copyWith(
                           color: isDark ? Colors.white54 : colors.gray,
+                          fontStyle: FontStyle.italic,
                         ),
                       ),
                     ],
@@ -407,6 +478,84 @@ class _TaskEditPageState extends BaseState<TaskEditPage, TaskEditController> {
         ),
       ),
     );
+  }
+
+  Color _getTaskColor(TaskStatus status) {
+    final colors = ColorsApp.i;
+    switch (status) {
+      case TaskStatus.finalizado:
+        return colors.primaryBlue;
+      case TaskStatus.emProgresso:
+        return colors.success;
+      case TaskStatus.emAberto:
+        return colors.warning;
+    }
+  }
+
+  String _getStatusText(TaskStatus status) {
+    switch (status) {
+      case TaskStatus.finalizado:
+        return 'Concluído';
+      case TaskStatus.emProgresso:
+        return 'Em Progresso';
+      case TaskStatus.emAberto:
+        return 'Em Aberto';
+    }
+  }
+
+  Widget _buildStatusButton({
+    required BuildContext context,
+    required TaskStatus status,
+    required TaskStatus currentStatus,
+    required ColorsApp colors,
+  }) {
+    final isSelected = currentStatus == status;
+    final color = _getTaskColor(status); 
+    
+    return GestureDetector(
+      onTap: () => controller.updateStatus(status),
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 1.h, horizontal: 0.5.h),
+        decoration: BoxDecoration(
+          color: isSelected ? color : color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? color : color.withOpacity(0.3),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              _getStatusIcon(status),
+              size: 20,
+              color: isSelected ? Colors.white : color,
+            ),
+            SizedBox(height: 0.5.h),
+            Text(
+              status.label,
+              textAlign: TextAlign.center,
+              style: TextStyle().smallText.copyWith(
+                color: isSelected ? Colors.white : color,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  IconData _getStatusIcon(TaskStatus status) {
+    switch (status) {
+      case TaskStatus.emAberto:
+        return Icons.hourglass_empty;
+      case TaskStatus.emProgresso:
+        return Icons.directions_run;
+      case TaskStatus.finalizado:
+        return Icons.check_circle;
+    }
   }
 
   Widget _buildCard({

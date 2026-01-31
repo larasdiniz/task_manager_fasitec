@@ -60,7 +60,11 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
         'taskId': task.id,
         'taskTitle': task.titulo,
       },
-    );
+    ).then((result) {
+      if (result == true) {
+        controller.refreshTasks();
+      }
+    });
   }
 
   void _navigateToCreateTask(BuildContext context) {
@@ -68,7 +72,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
       RouterNameUtils.getTaskCreatePage,
     ).then((result) {
       if (result == true) {
-        controller.onInit();
+        controller.refreshTasks();
       }
     });
   }
@@ -102,11 +106,13 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
         ),
         iconTheme: theme.appBarTheme.iconTheme,
         actions: [
+          // APENAS O BOTÃO DE ADICIONAR (REMOVI O REFRESH)
           IconButton(
             icon: Icon(
               Icons.add,
               size: 28.sp,
-              color: theme.iconTheme.color,
+              // CORREÇÃO: Usar a mesma cor do título
+              color: theme.appBarTheme.titleTextStyle?.color ?? theme.appBarTheme.iconTheme?.color,
             ),
             onPressed: () => _navigateToCreateTask(context),
           ),
@@ -150,7 +156,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Cards de métricas
+                // Cards de métricas - SEU ESTILO ORIGINAL
                 Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: context.percentWidth(0.05),
@@ -263,13 +269,14 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                   ),
                 ),
 
-                // Filtros
+                // Filtros - APENAS O PRIMEIRO DROPDOWN MUDADO (Status em vez de Prioridade)
                 Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: context.percentWidth(0.05),
                   ),
                   child: Row(
                     children: [
+                      // Filtro por Status (substituindo Prioridade)
                       Expanded(
                         child: Container(
                           height: 50,
@@ -285,7 +292,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                           child: Row(
                             children: [
                               Text(
-                                "Prioridade",
+                                "Status",
                                 style: TextStyle().smallText.copyWith(
                                   color: colors.white,
                                   fontWeight: FontWeight.bold,
@@ -295,22 +302,27 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                               Expanded(
                                 child: DropdownButtonHideUnderline(
                                   child: DropdownButton<String>(
-                                    value: 'Todas',
+                                    value: state.selectedStatusFilter,
                                     dropdownColor: colors.darkBlue,
                                     iconEnabledColor: colors.white,
                                     style: TextStyle().smallText.copyWith(color: colors.white),
-                                    items: ['Todas', 'Alta', 'Média', 'Baixa']
+                                    items: ['Todos', 'Em Aberto', 'Em Progresso', 'Finalizado']
                                         .map(
-                                          (p) => DropdownMenuItem(
-                                            value: p,
+                                          (status) => DropdownMenuItem(
+                                            value: status,
                                             child: Text(
-                                              p,
+                                              status,
                                               style: TextStyle().smallText.copyWith(color: colors.white),
                                             ),
                                           ),
                                         )
                                         .toList(),
-                                    onChanged: (value) {},
+                                    onChanged: (value) {
+                                      if (value != null) {
+                                        controller.updateStatusFilter(value);
+                                      }
+                                    },
+                                    isExpanded: true, // IMPORTANTE para responsividade
                                   ),
                                 ),
                               ),
@@ -319,6 +331,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                         ),
                       ),
                       const SizedBox(width: 12),
+                      // Ordenação (mantido igual)
                       Expanded(
                         child: Container(
                           height: 50,
@@ -355,6 +368,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                                   )
                                   .toList(),
                               onChanged: (value) {},
+                              isExpanded: true, // IMPORTANTE para responsividade
                             ),
                           ),
                         ),
@@ -403,7 +417,6 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
     final theme = Theme.of(context);
     final colors = ColorsApp.i;
     final isDark = theme.brightness == Brightness.dark;
-    final taskList = state.taskList;
     
     if (state.status == BaseStatus.initial || state.status == BaseStatus.loading) {
       return Center(
@@ -413,26 +426,33 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
       );
     }
     
-    if (taskList.isEmpty && state.status == BaseStatus.loaded) {
+    // USANDO filteredTaskList para mostrar apenas tarefas filtradas
+    if (state.filteredTaskList.isEmpty && state.status == BaseStatus.loaded) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.task,
+              state.selectedStatusFilter == 'Todos' 
+                ? Icons.task 
+                : Icons.filter_list,
               size: 50,
               color: theme.disabledColor,
             ),
             const SizedBox(height: 16),
             Text(
-              'Nenhuma tarefa encontrada',
+              state.selectedStatusFilter == 'Todos'
+                  ? 'Nenhuma tarefa encontrada'
+                  : 'Nenhuma tarefa com status "${state.selectedStatusFilter}"',
               style: TextStyle().mediumText.copyWith(
                 color: theme.disabledColor,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Clique no + para adicionar',
+              state.selectedStatusFilter == 'Todos'
+                  ? 'Clique no + para adicionar'
+                  : 'Tente selecionar outro filtro',
               style: TextStyle().smallText.copyWith(
                 color: theme.disabledColor.withOpacity(0.8),
               ),
@@ -442,13 +462,14 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
       );
     }
 
+    // LISTANDO filteredTaskList EM VEZ DE taskList
     return ListView.builder(
       padding: EdgeInsets.symmetric(
         horizontal: context.percentWidth(0.05),
       ),
-      itemCount: taskList.length,
+      itemCount: state.filteredTaskList.length,
       itemBuilder: (context, index) {
-        final task = taskList[index];
+        final task = state.filteredTaskList[index];
         final taskColor = _getTaskColor(task.status);
         final isCompleted = _isCompleted(task.status);
         final statusText = _getStatusText(task.status);
@@ -471,6 +492,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
             ),
             child: Row(
               children: [
+                // Checkbox colorido - SEU ESTILO ORIGINAL
                 Container(
                   height: 24,
                   width: 24,
@@ -495,6 +517,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Título - SEU ESTILO ORIGINAL
                       Text(
                         task.titulo,
                         style: TextStyle().mediumText.copyWith(
@@ -508,18 +531,49 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                         ),
                       ),
                       const SizedBox(height: 4),
+                      // Status badge + ID (MELHORIA QUE VOCÊ GOSTOU)
                       Row(
                         children: [
-                          Text(
-                            "Status: $statusText",
-                            style: TextStyle().smallText.copyWith(
-                              color: theme.colorScheme.onSurface.withOpacity(0.6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: taskColor.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: taskColor.withOpacity(0.3),
+                                width: 1,
+                              ),
+                            ),
+                            child: Text(
+                              statusText,
+                              style: TextStyle().smallText.copyWith(
+                                color: taskColor,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
+                          const SizedBox(width: 8),
+                          // Mostra ID apenas quando filtro é "Todos"
+                          if (state.selectedStatusFilter == 'Todos')
+                            Text(
+                              "ID: ${task.id}",
+                              style: TextStyle().smallText.copyWith(
+                                color: theme.colorScheme.onSurface.withOpacity(0.5),
+                              ),
+                            ),
                         ],
                       ),
                     ],
                   ),
+                ),
+                // Ícone de seta - MELHORIA QUE VOCÊ GOSTOU
+                Icon(
+                  Icons.chevron_right,
+                  color: theme.disabledColor,
+                  size: 20,
                 ),
               ],
             ),
