@@ -22,6 +22,7 @@ class ColorsApp {
   Color get warning => const Color(0xFFF57C00);
   Color get error => Colors.red;
   Color get darkBlueGradient => const Color(0xFF1E3A8A);
+  Color get vibrantBlue => const Color(0xFF3B82F6);
   
   // Cores para tema escuro
   Color get darkBackground => const Color(0xFF121212);

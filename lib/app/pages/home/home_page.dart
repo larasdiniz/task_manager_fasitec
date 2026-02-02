@@ -427,6 +427,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Cards de estatísticas
                 Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: context.percentWidth(0.05),
@@ -434,12 +435,15 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                   ),
                   child: Row(
                     children: [
+                      // Card: Taxa de conclusão
                       Expanded(
                         child: Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
-                              colors: [colors.darkBlue, colors.primaryBlue],
+                              colors: isDark
+                                ? [colors.darkBlueGradient, colors.primaryBlue]
+                                : [colors.darkBlue, colors.primaryBlue],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                             ),
@@ -477,18 +481,28 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                         ),
                       ),
                       const SizedBox(width: 12),
+                      // Card: Em andamento
                       Expanded(
                         child: Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: isDark
-                                  ? [colors.darkBlueGradient, colors.darkBlue]
-                                  : [colors.lightBlue, colors.lightBlue],
+                                ? [Color(0xFF1E40AF), Color(0xFF3B82F6)] 
+                                : [colors.lightBlue, colors.lightBlue],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                             ),
                             borderRadius: BorderRadius.circular(16),
+                            boxShadow: isDark 
+                              ? [
+                                  BoxShadow(
+                                    color: colors.primaryBlue.withOpacity(0.3),
+                                    blurRadius: 8,
+                                    offset: Offset(0, 4),
+                                  )
+                                ]
+                              : [],
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -496,7 +510,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                               Text(
                                 "Em andamento",
                                 style: TextStyle().smallText.copyWith(
-                                  color: isDark ? colors.textSecondaryDark : colors.darkBlue,
+                                  color: isDark ? colors.white : colors.darkBlue,
                                 ),
                               ),
                               const SizedBox(height: 8),
@@ -509,7 +523,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                                       Text(
                                         "${state.tasksInProgress}",
                                         style: TextStyle().largeText.copyWith(
-                                          color: isDark ? colors.textSecondaryDark : colors.darkBlue,
+                                          color: isDark ? colors.white : colors.darkBlue,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -517,14 +531,14 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                                       Text(
                                         "tarefas",
                                         style: TextStyle().smallText.copyWith(
-                                          color: isDark ? colors.textSecondaryDark : colors.darkBlue,
+                                          color: isDark ? colors.white.withOpacity(0.9) : colors.darkBlue.withOpacity(0.8),
                                         ),
                                       ),
                                     ],
                                   ),
                                   Icon(
                                     Icons.directions_run,
-                                    color: isDark ? colors.textSecondaryDark : colors.darkBlue,
+                                    color: isDark ? colors.white : colors.darkBlue,
                                     size: 28,
                                   ),
                                 ],
@@ -537,19 +551,23 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                   ),
                 ),
 
+                // Filtros e botão de seleção
                 Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: context.percentWidth(0.05),
                   ),
                   child: Row(
                     children: [
+                      // Dropdown de status
                       Expanded(
                         child: Container(
                           height: 50,
                           padding: const EdgeInsets.symmetric(horizontal: 12),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
-                              colors: [colors.darkBlue, colors.primaryBlue],
+                              colors: isDark
+                                ? [colors.darkBlueGradient, colors.primaryBlue]
+                                : [colors.darkBlue, colors.primaryBlue],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                             ),
@@ -569,7 +587,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                                 child: DropdownButtonHideUnderline(
                                   child: DropdownButton<String>(
                                     value: state.selectedStatusFilter,
-                                    dropdownColor: colors.darkBlue,
+                                    dropdownColor: isDark ? colors.darkBlue : colors.darkBlue,
                                     iconEnabledColor: colors.white,
                                     style: TextStyle().smallText.copyWith(color: colors.white),
                                     items: ['Todos', 'Em Aberto', 'Em Progresso', 'Finalizado']
@@ -597,14 +615,28 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                         ),
                       ),
                       const SizedBox(width: 12),
+                      // Botão de seleção
                       Expanded(
                         child: Container(
                           height: 50,
                           decoration: BoxDecoration(
-                            color: isDark
-                                ? colors.darkBlueGradient
-                                : colors.lightBlue,
+                            gradient: LinearGradient(
+                              colors: isDark
+                                ? [Color(0xFF1E40AF), Color(0xFF3B82F6)] 
+                                : [colors.lightBlue, colors.lightBlue],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                            ),
                             borderRadius: BorderRadius.circular(16),
+                            boxShadow: isDark 
+                              ? [
+                                  BoxShadow(
+                                    color: colors.primaryBlue.withOpacity(0.3),
+                                    blurRadius: 8,
+                                    offset: Offset(0, 4),
+                                  )
+                                ]
+                              : [],
                           ),
                           child: BlocBuilder<HomeController, HomeState>(
                             builder: (context, state) {
@@ -612,7 +644,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                                 onPressed: () => _toggleSelectionMode(),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.transparent,
-                                  foregroundColor: isDark ? colors.textSecondaryDark : colors.darkBlue,
+                                  foregroundColor: isDark ? colors.white : colors.darkBlue,
                                   shadowColor: Colors.transparent,
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
@@ -626,13 +658,13 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                                     Icon(
                                       state.isSelectionMode ? Icons.close : Icons.select_all,
                                       size: 20,
-                                      color: isDark ? colors.textSecondaryDark : colors.darkBlue,
+                                      color: isDark ? colors.white : colors.darkBlue,
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
                                       state.isSelectionMode ? 'Sair' : 'Selecionar',
                                       style: TextStyle().smallText.copyWith(
-                                        color: isDark ? colors.textSecondaryDark : colors.darkBlue,
+                                        color: isDark ? colors.white : colors.darkBlue,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -647,6 +679,8 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                   ),
                 ),
                 const SizedBox(height: 20),
+                
+                // Banner de seleção
                 if (state.isSelectionMode)
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -654,10 +688,16 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                       horizontal: context.percentWidth(0.05),
                     ),
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withOpacity(0.1),
+                      gradient: LinearGradient(
+                        colors: isDark
+                          ? [Color(0xFF1E40AF).withOpacity(0.8), Color(0xFF3B82F6).withOpacity(0.8)]
+                          : [colors.primaryBlue.withOpacity(0.1), colors.primaryBlue.withOpacity(0.05)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: theme.colorScheme.primary.withOpacity(0.3),
+                        color: isDark ? colors.primaryBlue.withOpacity(0.5) : colors.primaryBlue.withOpacity(0.3),
                       ),
                     ),
                     child: Row(
@@ -669,7 +709,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                             : 'Nenhuma tarefa selecionada',
                           style: TextStyle().smallText.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: theme.colorScheme.primary,
+                            color: isDark ? colors.white : theme.colorScheme.primary,
                           ),
                         ),
                         TextButton(
@@ -677,7 +717,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                           child: Text(
                             'Ações',
                             style: TextStyle().smallText.copyWith(
-                              color: theme.colorScheme.primary,
+                              color: isDark ? colors.white : theme.colorScheme.primary,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -689,6 +729,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                 if (state.isSelectionMode)
                   const SizedBox(height: 12),
 
+                // Lista de tarefas
                 Expanded(
                   child: _buildTaskList(state),
                 ),
@@ -786,13 +827,25 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            color: isSelected 
-              ? theme.colorScheme.primary.withOpacity(0.1)
-              : theme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(12),
-            border: isSelected
-              ? Border.all(color: theme.colorScheme.primary, width: 2)
+            gradient: isSelected 
+              ? LinearGradient(
+                  colors: isDark
+                    ? [Color(0xFF1E40AF).withOpacity(0.3), Color(0xFF3B82F6).withOpacity(0.3)]
+                    : [theme.colorScheme.primary.withOpacity(0.1), theme.colorScheme.primary.withOpacity(0.05)],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                )
               : null,
+            color: isSelected ? null : theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected
+                ? isDark ? colors.primaryBlue.withOpacity(0.5) : theme.colorScheme.primary
+                : isDark 
+                  ? colors.cardBorderDark.withOpacity(0.3)
+                  : colors.cardBorderLight,
+              width: isSelected ? 2 : 1,
+            ),
             boxShadow: [
               BoxShadow(
                 color: Colors.grey.withOpacity(isDark ? 0.1 : 0.15),
