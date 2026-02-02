@@ -1,4 +1,3 @@
-// lib/app/repositories/task_repository/task_repository_impl.dart
 import 'dart:convert';
 import 'package:task_manager/app/core/enums/task_status_enum.dart';
 import 'package:task_manager/app/models/task_model.dart';
@@ -90,6 +89,34 @@ class TaskRepositoryImpl implements TaskRepository {
       }
     } catch (e) {
       throw Exception('Erro ao excluir tarefa: $e');
+    }
+  }
+
+  @override
+  Future<void> deleteMultipleTasks(List<int> ids) async {
+    try {
+      final response = await api.deleteMultipleTasks(ids);
+      final Map<String, dynamic> json = jsonDecode(response);
+      
+      if (json.containsKey('error')) {
+        throw Exception(json['error']);
+      }
+    } catch (e) {
+      throw Exception('Erro ao excluir múltiplas tarefas: $e');
+    }
+  }
+
+  @override
+  Future<void> updateMultipleTasksStatus(List<int> ids, TaskStatus newStatus) async {
+    try {
+      final response = await api.updateMultipleTasksStatus(ids, newStatus);
+      final Map<String, dynamic> json = jsonDecode(response);
+      
+      if (json.containsKey('error')) {
+        throw Exception(json['error']);
+      }
+    } catch (e) {
+      throw Exception('Erro ao atualizar status de múltiplas tarefas: $e');
     }
   }
 }

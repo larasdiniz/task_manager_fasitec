@@ -1,4 +1,3 @@
-// lib/app/pages/home/home_controller.dart
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:task_manager/app/core/ui/base_state/base_status.dart';
 import 'package:task_manager/app/core/enums/task_status_enum.dart'; 
@@ -83,7 +82,6 @@ class HomeController extends Cubit<HomeState> {
     };
   }
 
-
   Future<void> refreshTasks() async {
     emit(state.copyWith(status: BaseStatus.loading));
     
@@ -121,5 +119,75 @@ class HomeController extends Cubit<HomeState> {
 
   Future<void> onTaskChanged() async {
     await refreshTasks();
+  }
+
+  void toggleSelectionMode() {
+    final newIsSelectionMode = !state.isSelectionMode;
+    
+    emit(state.copyWith(
+      isSelectionMode: newIsSelectionMode,
+      selectedTaskIds: newIsSelectionMode ? state.selectedTaskIds : {},
+    ));
+  }
+
+  void toggleTaskSelection(int taskId) {
+    final newSelectedIds = Set<int>.from(state.selectedTaskIds);
+    if (newSelectedIds.contains(taskId)) {
+      newSelectedIds.remove(taskId);
+    } else {
+      newSelectedIds.add(taskId);
+    }
+    
+    emit(state.copyWith(selectedTaskIds: newSelectedIds));
+  }
+
+  void selectAllTasks() {
+    final allIds = state.filteredTaskList.map((task) => task.id).toSet();
+    emit(state.copyWith(selectedTaskIds: allIds));
+  }
+
+  void clearSelection() {
+    emit(state.copyWith(selectedTaskIds: {}));
+  }
+
+  Future<void> deleteSelectedTasks() async {
+    if (state.selectedTaskIds.isEmpty) return;
+    
+    emit(state.copyWith(status: BaseStatus.loading));
+    
+    try {
+      await _taskRepository.deleteMultipleTasks(state.selectedTaskIds.toList());
+      await refreshTasks();
+      emit(state.copyWith(
+        isSelectionMode: false,
+        selectedTaskIds: {},
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        status: BaseStatus.error,
+      ));
+    }
+  }
+
+  Future<void> updateSelectedTasksStatus(TaskStatus newStatus) async {
+    if (state.selectedTaskIds.isEmpty) return;
+    
+    emit(state.copyWith(status: BaseStatus.loading));
+    
+    try {
+      await _taskRepository.updateMultipleTasksStatus(
+        state.selectedTaskIds.toList(), 
+        newStatus
+      );
+      await refreshTasks();
+      emit(state.copyWith(
+        isSelectionMode: false,
+        selectedTaskIds: {},
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        status: BaseStatus.error,
+      ));
+    }
   }
 }

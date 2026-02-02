@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:task_manager/app/core/enums/task_status_enum.dart';
 import 'package:task_manager/app/core/ui/extensions/task_status_extension.dart';
 
@@ -90,7 +89,7 @@ class FakeTasksApi {
     return jsonEncode(_tasksDatabase[index]);
   }
 
-  /// GET - Filtrar tarefas por status (MÉTODO NOVO)
+  /// GET - Filtrar tarefas por status
   Future<String> getTasksByStatus(String status) async {
     await Future.delayed(const Duration(milliseconds: 300));
     
@@ -105,5 +104,54 @@ class FakeTasksApi {
     }
     
     return jsonEncode(filteredTasks);
+  }
+
+  /// DELETE MÚLTIPLO - Excluir várias tarefas de uma vez
+  Future<String> deleteMultipleTasks(List<int> ids) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    final List<int> notFoundIds = [];
+    final List<int> deletedIds = [];
+
+    for (var id in ids) {
+      final index = _tasksDatabase.indexWhere((task) => task['id'] == id);
+      if (index == -1) {
+        notFoundIds.add(id);
+      } else {
+        _tasksDatabase.removeAt(index);
+        deletedIds.add(id);
+      }
+    }
+
+    return jsonEncode({
+      'success': true,
+      'deleted': deletedIds,
+      'not_found': notFoundIds,
+    });
+  }
+
+  /// UPDATE MÚLTIPLO - Atualizar status de várias tarefas de uma vez
+  Future<String> updateMultipleTasksStatus(List<int> ids, TaskStatus newStatus) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    final List<int> notFoundIds = [];
+    final List<int> updatedIds = [];
+
+    for (var id in ids) {
+      final index = _tasksDatabase.indexWhere((task) => task['id'] == id);
+      if (index == -1) {
+        notFoundIds.add(id);
+      } else {
+        _tasksDatabase[index]['status'] = newStatus.label;
+        updatedIds.add(id);
+      }
+    }
+
+    return jsonEncode({
+      'success': true,
+      'updated': updatedIds,
+      'not_found': notFoundIds,
+      'new_status': newStatus.label,
+    });
   }
 }

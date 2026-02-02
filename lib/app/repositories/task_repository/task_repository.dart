@@ -1,4 +1,3 @@
-// lib/app/repositories/task_repository/task_repository.dart
 import 'package:task_manager/app/core/enums/task_status_enum.dart';
 import 'package:task_manager/app/models/task_model.dart';
 
@@ -19,4 +18,8 @@ abstract class TaskRepository {
   });
   
   Future<void> deleteTask(int id);
+  
+  // NOVOS MÉTODOS PARA SELEÇÃO MÚLTIPLA
+  Future<void> deleteMultipleTasks(List<int> ids);
+  Future<void> updateMultipleTasksStatus(List<int> ids, TaskStatus newStatus);
 }

@@ -1,4 +1,3 @@
-// lib/app/pages/home/home_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sizer/sizer.dart';
@@ -55,6 +54,8 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
   }
 
   Future<void> _toggleTaskStatus(TaskModel task) async {
+    if (controller.state.isSelectionMode) return;
+    
     TaskStatus newStatus;
     
     if (task.status == TaskStatus.finalizado) {
@@ -93,6 +94,8 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
   }
 
   void _navigateToEditTask(BuildContext context, TaskModel task) {
+    if (controller.state.isSelectionMode) return;
+    
     Navigator.of(context).pushNamed(
       RouterNameUtils.getTaskEditPage, 
       arguments: {                   
@@ -122,6 +125,218 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
     );
   }
 
+  void _toggleSelectionMode() {
+    controller.toggleSelectionMode();
+  }
+
+  void _showSelectionMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return _buildSelectionMenu(context);
+      },
+    );
+  }
+
+  Widget _buildSelectionMenu(BuildContext context) {
+    final colors = ColorsApp.i;
+    final theme = Theme.of(context);
+    
+    return Container(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 16,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+      ),
+      constraints: BoxConstraints(
+        maxHeight: context.percentHeight(0.7),
+      ),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(bottom: 16),
+            child: Text(
+              'Ações em Lote',
+              style: TextStyle().mediumText.copyWith(
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
+          ),
+          
+          ListTile(
+            contentPadding: EdgeInsets.symmetric(horizontal: 8),
+            visualDensity: VisualDensity.compact,
+            leading: Icon(
+              Icons.select_all,
+              color: theme.colorScheme.primary,
+            ),
+            title: Text(
+              'Selecionar todas',
+              style: TextStyle().mediumText.copyWith(
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              controller.selectAllTasks();
+            },
+          ),
+          
+          if (controller.state.hasSelectedTasks) ...[
+            Divider(height: 8),
+            
+            ListTile(
+              contentPadding: EdgeInsets.symmetric(horizontal: 8),
+              visualDensity: VisualDensity.compact,
+              leading: Icon(Icons.delete, color: colors.error),
+              title: Text(
+                'Excluir selecionadas (${controller.state.selectedCount})',
+                style: TextStyle().mediumText.copyWith(
+                  color: colors.error,
+                ),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                _showDeleteConfirmationDialog(context);
+              },
+            ),
+            
+            ListTile(
+              contentPadding: EdgeInsets.symmetric(horizontal: 8),
+              visualDensity: VisualDensity.compact,
+              leading: Icon(Icons.check_circle, color: colors.primaryBlue),
+              title: Text(
+                'Marcar como Concluídas',
+                style: TextStyle().mediumText.copyWith(
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                controller.updateSelectedTasksStatus(TaskStatus.finalizado);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('${controller.state.selectedCount} tarefas marcadas como concluídas!'),
+                    backgroundColor: theme.colorScheme.primary,
+                  ),
+                );
+              },
+            ),
+            
+            ListTile(
+              contentPadding: EdgeInsets.symmetric(horizontal: 8),
+              visualDensity: VisualDensity.compact,
+              leading: Icon(Icons.hourglass_empty, color: colors.warning),
+              title: Text(
+                'Marcar como Em Aberto',
+                style: TextStyle().mediumText.copyWith(
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                controller.updateSelectedTasksStatus(TaskStatus.emAberto);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('${controller.state.selectedCount} tarefas marcadas como em aberto!'),
+                    backgroundColor: theme.colorScheme.primary,
+                  ),
+                );
+              },
+            ),
+            
+            ListTile(
+              contentPadding: EdgeInsets.symmetric(horizontal: 8),
+              visualDensity: VisualDensity.compact,
+              leading: Icon(Icons.directions_run, color: colors.success),
+              title: Text(
+                'Marcar como Em Progresso',
+                style: TextStyle().mediumText.copyWith(
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                controller.updateSelectedTasksStatus(TaskStatus.emProgresso);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('${controller.state.selectedCount} tarefas marcadas como em progresso!'),
+                    backgroundColor: theme.colorScheme.primary,
+                  ),
+                );
+              },
+            ),
+            
+            Divider(height: 8),
+            
+            ListTile(
+              contentPadding: EdgeInsets.symmetric(horizontal: 8),
+              visualDensity: VisualDensity.compact,
+              leading: Icon(
+                Icons.check_box_outline_blank,
+                color: theme.colorScheme.primary,
+              ),
+              title: Text(
+                'Desmarcar todas',
+                style: TextStyle().mediumText.copyWith(
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                controller.clearSelection();
+              },
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Excluir Tarefas'),
+        content: Text('Tem certeza que deseja excluir ${controller.state.selectedCount} tarefas selecionadas?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              controller.deleteSelectedTasks();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('${controller.state.selectedCount} tarefas excluídas com sucesso!'),
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                ),
+              );
+            },
+            style: TextButton.styleFrom(
+              backgroundColor: ColorsApp.i.error,
+              foregroundColor: Colors.white,
+            ),
+            child: Text('Excluir'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -136,22 +351,41 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
         elevation: theme.appBarTheme.elevation ?? 0,
         centerTitle: theme.appBarTheme.centerTitle ?? false,
         automaticallyImplyLeading: false,
-        title: Text(
-          'Tarefas',
-          style: TextStyle().largeText.copyWith(
-            fontWeight: FontWeight.bold,
-            color: theme.appBarTheme.titleTextStyle?.color,
-          ),
+        title: BlocBuilder<HomeController, HomeState>(
+          builder: (context, state) {
+            if (state.isSelectionMode) {
+              return Text(
+                '${state.selectedCount} selecionadas',
+                style: TextStyle().largeText.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.appBarTheme.titleTextStyle?.color,
+                ),
+              );
+            }
+            
+            return Text(
+              'Tarefas',
+              style: TextStyle().largeText.copyWith(
+                fontWeight: FontWeight.bold,
+                color: theme.appBarTheme.titleTextStyle?.color,
+              ),
+            );
+          },
         ),
         iconTheme: theme.appBarTheme.iconTheme,
         actions: [
-          IconButton(
-            icon: Icon(
-              Icons.add,
-              size: 28.sp,
-              color: theme.appBarTheme.titleTextStyle?.color ?? theme.appBarTheme.iconTheme?.color,
-            ),
-            onPressed: () => _navigateToCreateTask(context),
+          BlocBuilder<HomeController, HomeState>(
+            builder: (context, state) {
+              return IconButton(
+                icon: Icon(Icons.add, size: 28.sp),
+                color: state.isSelectionMode 
+                  ? theme.disabledColor
+                  : theme.appBarTheme.titleTextStyle?.color ?? theme.appBarTheme.iconTheme?.color,
+                onPressed: state.isSelectionMode 
+                  ? null 
+                  : () => _navigateToCreateTask(context),
+              );
+            },
           ),
           const SizedBox(width: 12),
         ],
@@ -193,7 +427,6 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Cards de métricas
                 Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: context.percentWidth(0.05),
@@ -201,7 +434,6 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                   ),
                   child: Row(
                     children: [
-                      // Card 1: Taxa de conclusão
                       Expanded(
                         child: Container(
                           padding: const EdgeInsets.all(16),
@@ -245,7 +477,6 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      // Card 2: Em andamento
                       Expanded(
                         child: Container(
                           padding: const EdgeInsets.all(16),
@@ -306,14 +537,12 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                   ),
                 ),
 
-                // Filtros
                 Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: context.percentWidth(0.05),
                   ),
                   child: Row(
                     children: [
-                      // Filtro por Status
                       Expanded(
                         child: Container(
                           height: 50,
@@ -368,53 +597,97 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      // Ordenação
                       Expanded(
                         child: Container(
                           height: 50,
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
                           decoration: BoxDecoration(
                             color: isDark
                                 ? colors.darkBlueGradient
                                 : colors.lightBlue,
                             borderRadius: BorderRadius.circular(16),
                           ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              value: 'Prazo',
-                              icon: Icon(
-                                Icons.keyboard_arrow_down,
-                                size: 24,
-                                color: isDark ? colors.textSecondaryDark : colors.darkBlue,
-                              ),
-                              style: TextStyle().smallText.copyWith(
-                                color: isDark ? colors.textSecondaryDark : colors.darkBlue,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              items: ['Prazo', 'Prioridade', 'Alfabética']
-                                  .map(
-                                    (opcao) => DropdownMenuItem(
-                                      value: opcao,
-                                      child: Text(
-                                        opcao,
-                                        style: TextStyle().smallText.copyWith(
-                                          color: isDark ? colors.textSecondaryDark : colors.darkBlue,
-                                        ),
+                          child: BlocBuilder<HomeController, HomeState>(
+                            builder: (context, state) {
+                              return ElevatedButton(
+                                onPressed: () => _toggleSelectionMode(),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  foregroundColor: isDark ? colors.textSecondaryDark : colors.darkBlue,
+                                  shadowColor: Colors.transparent,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  padding: EdgeInsets.symmetric(horizontal: 12),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      state.isSelectionMode ? Icons.close : Icons.select_all,
+                                      size: 20,
+                                      color: isDark ? colors.textSecondaryDark : colors.darkBlue,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      state.isSelectionMode ? 'Sair' : 'Selecionar',
+                                      style: TextStyle().smallText.copyWith(
+                                        color: isDark ? colors.textSecondaryDark : colors.darkBlue,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                  )
-                                  .toList(),
-                              onChanged: (value) {},
-                              isExpanded: true,
-                            ),
+                                  ],
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 20),
+                if (state.isSelectionMode)
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    margin: EdgeInsets.symmetric(
+                      horizontal: context.percentWidth(0.05),
+                    ),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: theme.colorScheme.primary.withOpacity(0.3),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          state.hasSelectedTasks
+                            ? '${state.selectedCount} tarefa(s) selecionada(s)'
+                            : 'Nenhuma tarefa selecionada',
+                          style: TextStyle().smallText.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () => _showSelectionMenu(context),
+                          child: Text(
+                            'Ações',
+                            style: TextStyle().smallText.copyWith(
+                              color: theme.colorScheme.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                if (state.isSelectionMode)
+                  const SizedBox(height: 12),
 
                 Expanded(
                   child: _buildTaskList(state),
@@ -508,12 +781,18 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
         final taskColor = _getTaskColor(task.status);
         final isCompleted = _isCompleted(task.status);
         final statusText = _getStatusText(task.status);
+        final isSelected = state.isTaskSelected(task.id);
 
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
+            color: isSelected 
+              ? theme.colorScheme.primary.withOpacity(0.1)
+              : theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
+            border: isSelected
+              ? Border.all(color: theme.colorScheme.primary, width: 2)
+              : null,
             boxShadow: [
               BoxShadow(
                 color: Colors.grey.withOpacity(isDark ? 0.1 : 0.15),
@@ -524,39 +803,70 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
           ),
           child: Row(
             children: [
-              // Checkbox clicável
-              GestureDetector(
-                onTap: () => _toggleTaskStatus(task),
-                child: Container(
-                  margin: const EdgeInsets.all(12),
-                  height: 24,
-                  width: 24,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(6),
-                    color: isCompleted ? taskColor : Colors.transparent,
-                    border: Border.all(
-                      color: taskColor,
-                      width: 2,
-                    ),
-                  ),
-                  child: isCompleted
-                      ? Icon(
-                          Icons.check,
-                          size: 16,
-                          color: colors.white,
-                        )
-                      : null,
-                ),
-              ),
-              
-              // Resto da tarefa (clicável para editar)
               Expanded(
                 child: GestureDetector(
-                  onTap: () => _navigateToEditTask(context, task),
+                  onTap: () {
+                    if (state.isSelectionMode) {
+                      controller.toggleTaskSelection(task.id);
+                    } else {
+                      _navigateToEditTask(context, task);
+                    }
+                  },
                   child: Container(
                     padding: const EdgeInsets.all(12),
                     child: Row(
                       children: [
+                        if (state.isSelectionMode)
+                          GestureDetector(
+                            onTap: () => controller.toggleTaskSelection(task.id),
+                            child: Container(
+                              margin: const EdgeInsets.only(right: 12),
+                              width: 24,
+                              height: 24,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: isSelected ? theme.colorScheme.primary : Colors.transparent,
+                                border: Border.all(
+                                  color: isSelected ? theme.colorScheme.primary : theme.disabledColor,
+                                  width: 2,
+                                ),
+                              ),
+                              child: isSelected
+                                ? Icon(
+                                    Icons.check,
+                                    size: 16,
+                                    color: colors.white,
+                                  )
+                                : null,
+                            ),
+                          ),
+                        
+                        if (!state.isSelectionMode)
+                          GestureDetector(
+                            onTap: () => _toggleTaskStatus(task),
+                            child: Container(
+                              margin: const EdgeInsets.only(right: 12),
+                              height: 24,
+                              width: 24,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(6),
+                                color: isCompleted ? taskColor : Colors.transparent,
+                                border: Border.all(
+                                  color: taskColor,
+                                  width: 2,
+                                ),
+                              ),
+                              child: isCompleted
+                                  ? Icon(
+                                      Icons.check,
+                                      size: 16,
+                                      color: colors.white,
+                                    )
+                                  : null,
+                            ),
+                          ),
+                        
+                        // Texto da tarefa
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -612,12 +922,14 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                             ],
                           ),
                         ),
-                        // Ícone de seta
-                        Icon(
-                          Icons.chevron_right,
-                          color: theme.disabledColor,
-                          size: 20,
-                        ),
+                        
+                        // Ícone de seta (oculto no modo seleção)
+                        if (!state.isSelectionMode)
+                          Icon(
+                            Icons.chevron_right,
+                            color: theme.disabledColor,
+                            size: 20,
+                          ),
                       ],
                     ),
                   ),
