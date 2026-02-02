@@ -1,3 +1,4 @@
+// lib/app/pages/home/home_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sizer/sizer.dart';
@@ -53,6 +54,44 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
     return status == TaskStatus.finalizado;
   }
 
+  Future<void> _toggleTaskStatus(TaskModel task) async {
+    TaskStatus newStatus;
+    
+    if (task.status == TaskStatus.finalizado) {
+      newStatus = TaskStatus.emAberto;
+    } else {
+      newStatus = TaskStatus.finalizado;
+    }
+
+    try {
+      await controller.taskRepository.updateTask(
+        id: task.id,
+        titulo: task.titulo,
+        descricao: task.descricao,
+        status: newStatus,
+      );
+      controller.refreshTasks();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            newStatus == TaskStatus.finalizado 
+              ? 'Tarefa marcada como concluída!' 
+              : 'Tarefa reaberta!',
+          ),
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao atualizar tarefa: $e'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
+  }
+
   void _navigateToEditTask(BuildContext context, TaskModel task) {
     Navigator.of(context).pushNamed(
       RouterNameUtils.getTaskEditPage, 
@@ -106,12 +145,10 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
         ),
         iconTheme: theme.appBarTheme.iconTheme,
         actions: [
-          // APENAS O BOTÃO DE ADICIONAR (REMOVI O REFRESH)
           IconButton(
             icon: Icon(
               Icons.add,
               size: 28.sp,
-              // CORREÇÃO: Usar a mesma cor do título
               color: theme.appBarTheme.titleTextStyle?.color ?? theme.appBarTheme.iconTheme?.color,
             ),
             onPressed: () => _navigateToCreateTask(context),
@@ -156,7 +193,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Cards de métricas - SEU ESTILO ORIGINAL
+                // Cards de métricas
                 Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: context.percentWidth(0.05),
@@ -269,14 +306,14 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                   ),
                 ),
 
-                // Filtros - APENAS O PRIMEIRO DROPDOWN MUDADO (Status em vez de Prioridade)
+                // Filtros
                 Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: context.percentWidth(0.05),
                   ),
                   child: Row(
                     children: [
-                      // Filtro por Status (substituindo Prioridade)
+                      // Filtro por Status
                       Expanded(
                         child: Container(
                           height: 50,
@@ -322,7 +359,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                                         controller.updateStatusFilter(value);
                                       }
                                     },
-                                    isExpanded: true, // IMPORTANTE para responsividade
+                                    isExpanded: true,
                                   ),
                                 ),
                               ),
@@ -331,7 +368,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      // Ordenação (mantido igual)
+                      // Ordenação
                       Expanded(
                         child: Container(
                           height: 50,
@@ -368,7 +405,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                                   )
                                   .toList(),
                               onChanged: (value) {},
-                              isExpanded: true, // IMPORTANTE para responsividade
+                              isExpanded: true,
                             ),
                           ),
                         ),
@@ -426,7 +463,6 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
       );
     }
     
-    // USANDO filteredTaskList para mostrar apenas tarefas filtradas
     if (state.filteredTaskList.isEmpty && state.status == BaseStatus.loaded) {
       return Center(
         child: Column(
@@ -462,7 +498,6 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
       );
     }
 
-    // LISTANDO filteredTaskList EM VEZ DE taskList
     return ListView.builder(
       padding: EdgeInsets.symmetric(
         horizontal: context.percentWidth(0.05),
@@ -474,26 +509,26 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
         final isCompleted = _isCompleted(task.status);
         final statusText = _getStatusText(task.status);
 
-        return GestureDetector(
-          onTap: () => _navigateToEditTask(context, task),
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(isDark ? 0.1 : 0.15),
-                  blurRadius: 5,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                // Checkbox colorido - SEU ESTILO ORIGINAL
-                Container(
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(isDark ? 0.1 : 0.15),
+                blurRadius: 5,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              // Checkbox clicável
+              GestureDetector(
+                onTap: () => _toggleTaskStatus(task),
+                child: Container(
+                  margin: const EdgeInsets.all(12),
                   height: 24,
                   width: 24,
                   decoration: BoxDecoration(
@@ -512,71 +547,83 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                         )
                       : null,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Título - SEU ESTILO ORIGINAL
-                      Text(
-                        task.titulo,
-                        style: TextStyle().mediumText.copyWith(
-                          fontWeight: FontWeight.w500,
-                          color: isCompleted
-                              ? theme.disabledColor
-                              : theme.colorScheme.onSurface,
-                          decoration: isCompleted
-                              ? TextDecoration.lineThrough
-                              : TextDecoration.none,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      // Status badge + ID (MELHORIA QUE VOCÊ GOSTOU)
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: taskColor.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(
-                                color: taskColor.withOpacity(0.3),
-                                width: 1,
+              ),
+              
+              // Resto da tarefa (clicável para editar)
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => _navigateToEditTask(context, task),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Título
+                              Text(
+                                task.titulo,
+                                style: TextStyle().mediumText.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  color: isCompleted
+                                      ? theme.disabledColor
+                                      : theme.colorScheme.onSurface,
+                                  decoration: isCompleted
+                                      ? TextDecoration.lineThrough
+                                      : TextDecoration.none,
+                                ),
                               ),
-                            ),
-                            child: Text(
-                              statusText,
-                              style: TextStyle().smallText.copyWith(
-                                color: taskColor,
-                                fontWeight: FontWeight.w600,
+                              const SizedBox(height: 4),
+                              // Status badge + ID
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: taskColor.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(4),
+                                      border: Border.all(
+                                        color: taskColor.withOpacity(0.3),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      statusText,
+                                      style: TextStyle().smallText.copyWith(
+                                        color: taskColor,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  if (state.selectedStatusFilter == 'Todos')
+                                    Text(
+                                      "ID: ${task.id}",
+                                      style: TextStyle().smallText.copyWith(
+                                        color: theme.colorScheme.onSurface.withOpacity(0.5),
+                                      ),
+                                    ),
+                                ],
                               ),
-                            ),
+                            ],
                           ),
-                          const SizedBox(width: 8),
-                          // Mostra ID apenas quando filtro é "Todos"
-                          if (state.selectedStatusFilter == 'Todos')
-                            Text(
-                              "ID: ${task.id}",
-                              style: TextStyle().smallText.copyWith(
-                                color: theme.colorScheme.onSurface.withOpacity(0.5),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ],
+                        ),
+                        // Ícone de seta
+                        Icon(
+                          Icons.chevron_right,
+                          color: theme.disabledColor,
+                          size: 20,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                // Ícone de seta - MELHORIA QUE VOCÊ GOSTOU
-                Icon(
-                  Icons.chevron_right,
-                  color: theme.disabledColor,
-                  size: 20,
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },

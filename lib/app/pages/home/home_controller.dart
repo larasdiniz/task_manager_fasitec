@@ -8,19 +8,17 @@ import 'package:task_manager/app/repositories/task_repository/task_repository.da
 
 class HomeController extends Cubit<HomeState> {
   final TaskRepository _taskRepository;
+  TaskRepository get taskRepository => _taskRepository;
+  
   HomeController(this._taskRepository) : super(HomeState.initial());
 
-  // Carrega todas as tarefas inicialmente
   Future<void> onInit() async {
     emit(state.copyWith(status: BaseStatus.loading));
 
     try {
       final List<TaskModel> taskList = await _taskRepository.getAllTasks();
-      
-      // Calcula métricas totais
       final metrics = _calculateMetrics(taskList);
-      
-      // Usa a lista completa inicialmente
+
       emit(state.copyWith(
         status: BaseStatus.loaded,
         taskList: taskList,
@@ -37,7 +35,6 @@ class HomeController extends Cubit<HomeState> {
     }
   }
 
-  // Método para aplicar filtro
   Future<void> updateStatusFilter(String filter) async {
     if (state.selectedStatusFilter == filter) return;
     
@@ -67,7 +64,6 @@ class HomeController extends Cubit<HomeState> {
     }
   }
 
-  // Método para calcular métricas (retorna um Map)
   Map<String, dynamic> _calculateMetrics(List<TaskModel> taskList) {
     final tasksInProgress = taskList
         .where((task) => task.status == TaskStatus.emProgresso)
@@ -87,21 +83,17 @@ class HomeController extends Cubit<HomeState> {
     };
   }
 
-  // Atualiza quando uma tarefa é criada/editada/excluída
+
   Future<void> refreshTasks() async {
     emit(state.copyWith(status: BaseStatus.loading));
     
     try {
-      // Busca todas as tarefas atualizadas
       final List<TaskModel> taskList = await _taskRepository.getAllTasks();
       print('DEBUG: Total de tarefas: ${taskList.length}');
-      
-      // Calcula as novas métricas
+
       final metrics = _calculateMetrics(taskList);
       print('DEBUG: Métricas calculadas - Em progresso: ${metrics['tasksInProgress']}, Conclusão: ${metrics['completionRate']}%');
-    
-      
-      // Aplica o filtro atual nas novas tarefas
+
       final currentFilter = state.selectedStatusFilter;
       List<TaskModel> filteredList;
       
@@ -127,7 +119,6 @@ class HomeController extends Cubit<HomeState> {
     }
   }
 
-  // Método para quando uma tarefa é adicionada/atualizada/deletada
   Future<void> onTaskChanged() async {
     await refreshTasks();
   }
