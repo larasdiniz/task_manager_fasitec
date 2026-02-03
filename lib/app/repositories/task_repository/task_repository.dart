@@ -8,6 +8,7 @@ abstract class TaskRepository {
   Future<TaskModel> createTask({
     required String titulo,
     required String descricao,
+    required TaskStatus status, 
   });
   
   Future<TaskModel> updateTask({
@@ -18,8 +19,6 @@ abstract class TaskRepository {
   });
   
   Future<void> deleteTask(int id);
-  
-  // NOVOS MÉTODOS PARA SELEÇÃO MÚLTIPLA
   Future<void> deleteMultipleTasks(List<int> ids);
   Future<void> updateMultipleTasksStatus(List<int> ids, TaskStatus newStatus);
 }

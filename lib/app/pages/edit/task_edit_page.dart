@@ -1,7 +1,6 @@
 // lib/app/pages/edit/task_edit_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sizer/sizer.dart';
 import 'package:task_manager/app/core/ui/base_state/base_state.dart';
 import 'package:task_manager/app/core/ui/base_state/base_status.dart';
 import 'package:task_manager/app/core/ui/extensions/size_extensions.dart';
@@ -97,7 +96,6 @@ class _TaskEditPageState extends BaseState<TaskEditPage, TaskEditController> {
 
   Widget _buildDeleteDialog(BuildContext context) {
     final theme = Theme.of(context);
-    final colors = ColorsApp.i;
 
     return AlertDialog(
       backgroundColor: theme.colorScheme.surface,
@@ -127,12 +125,15 @@ class _TaskEditPageState extends BaseState<TaskEditPage, TaskEditController> {
         TextButton(
           onPressed: () => Navigator.pop(context, true),
           style: TextButton.styleFrom(
-            backgroundColor: colors.error,
-            foregroundColor: Colors.white,
+            backgroundColor: theme.colorScheme.error, 
+            foregroundColor: theme.colorScheme.onError, 
           ),
           child: Text(
             'Excluir',
-            style: TextStyle().smallText.copyWith(fontWeight: FontWeight.bold),
+            style: TextStyle().smallText.copyWith(
+              color: theme.colorScheme.onError, 
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ],
@@ -179,7 +180,9 @@ class _TaskEditPageState extends BaseState<TaskEditPage, TaskEditController> {
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back,
-            color: isDark ? Colors.white70 : colors.gray,
+            color: isDark ? 
+              theme.colorScheme.onSurface.withOpacity(0.7) : 
+              colors.gray,
           ),
           onPressed: () => Navigator.pop(context),
         ),
@@ -208,17 +211,17 @@ class _TaskEditPageState extends BaseState<TaskEditPage, TaskEditController> {
           children: [
             Icon(
               Icons.error_outline,
-              size: 12.w,
+              size: context.percentWidth(0.12),
               color: theme.colorScheme.error,
             ),
-            SizedBox(height: 2.h),
+            SizedBox(height: context.percentHeight(0.02)),
             Text(
               'Erro ao carregar tarefa',
               style: TextStyle().mediumText.copyWith(
                 color: theme.colorScheme.error,
               ),
             ),
-            SizedBox(height: 2.h),
+            SizedBox(height: context.percentHeight(0.02)),
             ElevatedButton(
               onPressed: () => Navigator.pop(context),
               child: Text('Voltar', style: TextStyle().buttom()),
@@ -245,7 +248,7 @@ class _TaskEditPageState extends BaseState<TaskEditPage, TaskEditController> {
                     border: InputBorder.none,
                     hintText: "Digite o título da tarefa",
                     hintStyle: TextStyle().inputText.copyWith(
-                      color: isDark ? Colors.white54 : colors.gray,
+                      color: theme.hintColor, 
                     ),
                   ),
                   style: TextStyle().mediumText.copyWith(
@@ -254,7 +257,7 @@ class _TaskEditPageState extends BaseState<TaskEditPage, TaskEditController> {
                   onChanged: controller.updateTitulo,
                 ),
               ),
-              SizedBox(height: 2.h),
+              SizedBox(height: context.percentHeight(0.02)),
 
               _buildCard(
                 theme: theme,
@@ -268,7 +271,7 @@ class _TaskEditPageState extends BaseState<TaskEditPage, TaskEditController> {
                     border: InputBorder.none,
                     hintText: "Digite a descrição da tarefa",
                     hintStyle: TextStyle().inputText.copyWith(
-                      color: isDark ? Colors.white54 : colors.gray,
+                      color: theme.hintColor, 
                     ),
                   ),
                   style: TextStyle().mediumText.copyWith(
@@ -277,7 +280,7 @@ class _TaskEditPageState extends BaseState<TaskEditPage, TaskEditController> {
                   onChanged: controller.updateDescricao,
                 ),
               ),
-              SizedBox(height: 2.h),
+              SizedBox(height: context.percentHeight(0.02)),
 
               if (state.task?.status != null) ...[
                 _buildCard(
@@ -315,24 +318,20 @@ class _TaskEditPageState extends BaseState<TaskEditPage, TaskEditController> {
                           Text(
                             'Status atual',
                             style: TextStyle().smallText.copyWith(
-                              color: isDark ? Colors.white54 : colors.gray,
+                              color: theme.colorScheme.onSurface.withOpacity(0.6), 
                             ),
                           ),
                         ],
                       ),
-                      SizedBox(height: 2.h),
-                      
-                      // Seletor de novo status
+                      SizedBox(height: context.percentHeight(0.02)),
                       Text(
                         'Alterar status:',
                         style: TextStyle().smallText.copyWith(
-                          color: isDark ? Colors.white70 : colors.darkBlue,
+                          color: theme.colorScheme.primary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 1.h),
-                      
-                      // Botões para selecionar status
+                      SizedBox(height: context.percentHeight(0.01)),
                       Row(
                         children: [
                           // Botão Em Aberto
@@ -341,68 +340,96 @@ class _TaskEditPageState extends BaseState<TaskEditPage, TaskEditController> {
                               context: context,
                               status: TaskStatus.emAberto,
                               currentStatus: state.selectedStatus,
+                              theme: theme,
                               colors: colors,
                             ),
                           ),
-                          SizedBox(width: 1.h),
+                          SizedBox(width: context.percentWidth(0.02)),
                           // Botão Em Progresso
                           Expanded(
                             child: _buildStatusButton(
                               context: context,
                               status: TaskStatus.emProgresso,
                               currentStatus: state.selectedStatus,
+                              theme: theme,
                               colors: colors,
                             ),
                           ),
-                          SizedBox(width: 1.h),
+                          SizedBox(width: context.percentWidth(0.02)),
                           // Botão Finalizado
                           Expanded(
                             child: _buildStatusButton(
                               context: context,
                               status: TaskStatus.finalizado,
                               currentStatus: state.selectedStatus,
+                              theme: theme,
                               colors: colors,
                             ),
                           ),
                         ],
                       ),
                       
-                      SizedBox(height: 1.h),
+                      SizedBox(height: context.percentHeight(0.01)),
                       Text(
                         'Clique para mudar o status da tarefa',
                         style: TextStyle().smallText.copyWith(
-                          color: isDark ? Colors.white54 : colors.gray,
+                          color: theme.colorScheme.onSurface.withOpacity(0.6), 
                           fontStyle: FontStyle.italic,
                         ),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: 2.h),
+                SizedBox(height: context.percentHeight(0.02)),
               ],
 
+              // Card do ID
               _buildCard(
                 theme: theme,
                 colors: colors,
                 isDark: isDark,
-                title: "ID",
-                child: Text(
-                  'Tarefa #${state.task?.id ?? ''}',
-                  style: TextStyle().mediumText.copyWith(
-                    color: isDark ? Colors.white70 : colors.darkBlue,
-                    fontWeight: FontWeight.bold,
-                  ),
+                title: "Informação",
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'ID da tarefa',
+                          style: TextStyle().smallText.copyWith(
+                            color: theme.colorScheme.onSurface.withOpacity(0.6),
+                          ),
+                        ),
+                        SizedBox(height: context.percentHeight(0.005)),
+                        Text(
+                          '#${state.task?.id ?? ''}',
+                          style: TextStyle().smallText.copyWith(
+                            color: theme.colorScheme.primary, 
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Icon(
+                      Icons.info_outline,
+                      size: context.percentWidth(0.05),
+                      color: theme.colorScheme.onSurface.withOpacity(0.6), 
+                    ),
+                  ],
                 ),
               ),
 
-              SizedBox(height: 4.h),
+              SizedBox(height: context.percentHeight(0.04)),
 
               if (state.errorMessage != null)
                 Padding(
-                  padding: EdgeInsets.only(bottom: 2.h),
+                  padding: EdgeInsets.only(bottom: context.percentHeight(0.02)),
                   child: Text(
                     state.errorMessage!,
-                    style: TextStyle().smallText.copyWith(color: colors.error),
+                    style: TextStyle().smallText.copyWith(
+                      color: theme.colorScheme.error, 
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -412,10 +439,9 @@ class _TaskEditPageState extends BaseState<TaskEditPage, TaskEditController> {
                   Expanded(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: isDark
-                            ? theme.colorScheme.surface
-                            : colors.lightBlue,
-                        padding: EdgeInsets.symmetric(vertical: 2.h),
+                        backgroundColor: theme.colorScheme.error, 
+                        foregroundColor: theme.colorScheme.onError, 
+                        padding: EdgeInsets.symmetric(vertical: context.percentHeight(0.02)),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -423,17 +449,17 @@ class _TaskEditPageState extends BaseState<TaskEditPage, TaskEditController> {
                       onPressed: state.isDeleting ? null : _deleteTask,
                       child: state.isDeleting
                           ? SizedBox(
-                              height: 3.h,
-                              width: 3.h,
+                              height: context.percentHeight(0.03),
+                              width: context.percentHeight(0.03),
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: colors.error,
+                                color: theme.colorScheme.onError, 
                               ),
                             )
                           : Text(
                               "Excluir",
                               style: TextStyle().mediumText.copyWith(
-                                color: colors.error,
+                                color: theme.colorScheme.onError, 
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -443,8 +469,9 @@ class _TaskEditPageState extends BaseState<TaskEditPage, TaskEditController> {
                   Expanded(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: colors.primaryBlue,
-                        padding: EdgeInsets.symmetric(vertical: 2.h),
+                        backgroundColor: theme.colorScheme.primary, 
+                        foregroundColor: theme.colorScheme.onPrimary, 
+                        padding: EdgeInsets.symmetric(vertical: context.percentHeight(0.02)),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -454,17 +481,17 @@ class _TaskEditPageState extends BaseState<TaskEditPage, TaskEditController> {
                           : _saveTask,
                       child: state.isSaving
                           ? SizedBox(
-                              height: 3.h,
-                              width: 3.h,
+                              height: context.percentHeight(0.03),
+                              width: context.percentHeight(0.03),
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: Colors.white,
+                                color: theme.colorScheme.onPrimary, 
                               ),
                             )
                           : Text(
                               "Salvar",
                               style: TextStyle()
-                                  .buttom(color: Colors.white)
+                                  .buttom(color: theme.colorScheme.onPrimary) 
                                   .copyWith(fontWeight: FontWeight.bold),
                             ),
                     ),
@@ -507,6 +534,7 @@ class _TaskEditPageState extends BaseState<TaskEditPage, TaskEditController> {
     required BuildContext context,
     required TaskStatus status,
     required TaskStatus currentStatus,
+    required ThemeData theme,
     required ColorsApp colors,
   }) {
     final isSelected = currentStatus == status;
@@ -515,7 +543,10 @@ class _TaskEditPageState extends BaseState<TaskEditPage, TaskEditController> {
     return GestureDetector(
       onTap: () => controller.updateStatus(status),
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 1.h, horizontal: 0.5.h),
+        padding: EdgeInsets.symmetric(
+          vertical: context.percentHeight(0.01),
+          horizontal: context.percentWidth(0.005),
+        ),
         decoration: BoxDecoration(
           color: isSelected ? color : color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(8),
@@ -529,15 +560,15 @@ class _TaskEditPageState extends BaseState<TaskEditPage, TaskEditController> {
           children: [
             Icon(
               _getStatusIcon(status),
-              size: 20,
-              color: isSelected ? Colors.white : color,
+              size: context.percentWidth(0.05).clamp(20, 24),
+              color: isSelected ? theme.colorScheme.onPrimary : color,
             ),
-            SizedBox(height: 0.5.h),
+            SizedBox(height: context.percentHeight(0.005)),
             Text(
               status.label,
               textAlign: TextAlign.center,
               style: TextStyle().smallText.copyWith(
-                color: isSelected ? Colors.white : color,
+                color: isSelected ? theme.colorScheme.onPrimary : color,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
             ),
@@ -571,15 +602,17 @@ class _TaskEditPageState extends BaseState<TaskEditPage, TaskEditController> {
         Text(
           title,
           style: TextStyle().smallText.copyWith(
-            color: colors.primaryBlue,
+            color: theme.colorScheme.primary, 
             fontWeight: FontWeight.bold,
           ),
         ),
-        SizedBox(height: 1.h),
+        SizedBox(height: context.percentHeight(0.01)),
         Container(
-          padding: EdgeInsets.all(2.h),
+          padding: EdgeInsets.all(context.percentWidth(0.04)),
           decoration: BoxDecoration(
-            color: isDark ? theme.colorScheme.surface : colors.lightBlue,
+            color: isDark ? 
+              theme.colorScheme.surface : 
+              colors.lightBlue,
             borderRadius: BorderRadius.circular(16),
           ),
           child: child,

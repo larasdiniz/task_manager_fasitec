@@ -1,7 +1,7 @@
-// main.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
+import 'package:device_preview/device_preview.dart'; // Importe este pacote
 import 'package:task_manager/app/core/ui/theme/theme_config.dart';
 import 'package:task_manager/app/core/ui/theme/theme_manager.dart';
 import 'package:task_manager/app/core/utils/router_name_utils.dart';
@@ -13,7 +13,17 @@ import 'package:task_manager/fake_task_api.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const App());
+  
+  // Para desenvolvimento, use DevicePreview
+  runApp(
+    DevicePreview(
+      enabled: true, // Habilite/desabilite conforme necessário
+      builder: (context) => const App(), // Seu app original
+    ),
+  );
+  
+  // Para produção, você pode usar:
+  // runApp(const App());
 }
 
 class App extends StatelessWidget {
@@ -33,10 +43,15 @@ class App extends StatelessWidget {
           return MaterialApp(
             title: 'Task Manager',
             debugShowCheckedModeBanner: false,
+            
+            // IMPORTANTE: DevicePreview precisa destas configurações
+            useInheritedMediaQuery: true, // Necessário para DevicePreview
+            locale: DevicePreview.locale(context), // Para internacionalização
+            builder: DevicePreview.appBuilder, // Builder do DevicePreview
+            
             theme: ThemeConfig.lightTheme,
             darkTheme: ThemeConfig.darkTheme,
             themeMode: themeManager.themeMode,
-            navigatorKey: navigatorKey,
             
             initialRoute: RouterNameUtils.getHomePage,
             onGenerateRoute: (settings) {

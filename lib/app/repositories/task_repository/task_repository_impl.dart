@@ -31,12 +31,13 @@ class TaskRepositoryImpl implements TaskRepository {
   Future<TaskModel> createTask({
     required String titulo,
     required String descricao,
+    required TaskStatus status, 
   }) async {
     try {
       final response = await api.addTask(
         titulo: titulo,
         descricao: descricao,
-        status: TaskStatus.emAberto,
+        status: status, 
       );
       
       final Map<String, dynamic> json = jsonDecode(response);

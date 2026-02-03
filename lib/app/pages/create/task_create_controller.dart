@@ -1,5 +1,6 @@
 // lib/app/pages/create/task_create_controller.dart
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:task_manager/app/core/enums/task_status_enum.dart'; // ADICIONE ESTE IMPORT
 import 'package:task_manager/app/core/ui/base_state/base_status.dart';
 import 'package:task_manager/app/models/task_model.dart';
 import 'package:task_manager/app/pages/create/task_create_state.dart';
@@ -25,6 +26,12 @@ class TaskCreateController extends Cubit<TaskCreateState> {
     }
   }
 
+  void updateStatus(TaskStatus newStatus) {
+    if (newStatus != state.selectedStatus) {
+      emit(state.copyWith(selectedStatus: newStatus));
+    }
+  }
+
   Future<TaskModel?> createTask() async {
     if (state.isSaving || !state.isValid) return null;
 
@@ -34,6 +41,7 @@ class TaskCreateController extends Cubit<TaskCreateState> {
       final newTask = await _taskRepository.createTask(
         titulo: state.titulo!.trim(),
         descricao: state.descricao!.trim(),
+        status: state.selectedStatus,
       );
 
       emit(state.copyWith(

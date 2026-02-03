@@ -1,10 +1,11 @@
 // lib/app/pages/create/task_create_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sizer/sizer.dart';
+import 'package:task_manager/app/core/enums/task_status_enum.dart';
 import 'package:task_manager/app/core/ui/base_state/base_state.dart';
 import 'package:task_manager/app/core/ui/base_state/base_status.dart';
 import 'package:task_manager/app/core/ui/extensions/size_extensions.dart';
+import 'package:task_manager/app/core/ui/extensions/task_status_extension.dart';
 import 'package:task_manager/app/core/ui/extensions/text_style_extensions.dart';
 import 'package:task_manager/app/core/ui/styles/colors_app.dart';
 import 'package:task_manager/app/pages/create/task_create_controller.dart';
@@ -42,7 +43,7 @@ class _TaskCreatePageState extends BaseState<TaskCreatePage, TaskCreateControlle
           ),
         ),
       );
-      Navigator.of(context).pop(true); // Retorna true para indicar sucesso
+      Navigator.of(context).pop(true);
     } else if (controller.state.errorMessage != null && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -201,7 +202,7 @@ class _TaskCreatePageState extends BaseState<TaskCreatePage, TaskCreateControlle
                   onChanged: controller.updateTitulo,
                 ),
               ),
-              SizedBox(height: 2.h),
+              SizedBox(height: context.percentHeight(0.02)),
 
               _buildCard(
                 theme: theme,
@@ -224,56 +225,108 @@ class _TaskCreatePageState extends BaseState<TaskCreatePage, TaskCreateControlle
                   onChanged: controller.updateDescricao,
                 ),
               ),
-              SizedBox(height: 2.h),
+              SizedBox(height: context.percentHeight(0.02)),
 
               _buildCard(
                 theme: theme,
                 colors: colors,
                 isDark: isDark,
                 title: "Status",
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Chip(
-                      backgroundColor: colors.warning, // Em Aberto
-                      label: Text(
-                        'Em Aberto',
-                        style: TextStyle().smallText.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _getTaskColor(state.selectedStatus).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(
+                              color: _getTaskColor(state.selectedStatus).withOpacity(0.3),
+                              width: 1,
+                            ),
+                          ),
+                          child: Text(
+                            _getStatusText(state.selectedStatus),
+                            style: TextStyle().smallText.copyWith(
+                              color: _getTaskColor(state.selectedStatus),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
+                        Text(
+                          'Status selecionado',
+                          style: TextStyle().smallText.copyWith(
+                            color: isDark ? Colors.white54 : colors.gray,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: context.percentHeight(0.02)),
+                    Text(
+                      'Selecione o status inicial:',
+                      style: TextStyle().smallText.copyWith(
+                        color: isDark ? Colors.white70 : colors.darkBlue,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
+                    SizedBox(height: context.percentHeight(0.015)),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildStatusButton(
+                            context: context,
+                            status: TaskStatus.emAberto,
+                            currentStatus: state.selectedStatus,
+                            colors: colors,
+                            isSelected: state.selectedStatus == TaskStatus.emAberto,
+                          ),
+                        ),
+                        SizedBox(width: context.percentWidth(0.02)),
+                        Expanded(
+                          child: _buildStatusButton(
+                            context: context,
+                            status: TaskStatus.emProgresso,
+                            currentStatus: state.selectedStatus,
+                            colors: colors,
+                            isSelected: state.selectedStatus == TaskStatus.emProgresso,
+                          ),
+                        ),
+                        SizedBox(width: context.percentWidth(0.02)),
+                        Expanded(
+                          child: _buildStatusButton(
+                            context: context,
+                            status: TaskStatus.finalizado,
+                            currentStatus: state.selectedStatus,
+                            colors: colors,
+                            isSelected: state.selectedStatus == TaskStatus.finalizado,
+                          ),
+                        ),
+                      ],
+                    ),
+                    
+                    SizedBox(height: context.percentHeight(0.015)),
                     Text(
-                      'Definido automaticamente',
+                      'A tarefa será criada com o status selecionado',
                       style: TextStyle().smallText.copyWith(
                         color: isDark ? Colors.white54 : colors.gray,
+                        fontStyle: FontStyle.italic,
                       ),
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: 2.h),
 
-              _buildCard(
-                theme: theme,
-                colors: colors,
-                isDark: isDark,
-                title: "ID",
-                child: Text(
-                  'Será gerado automaticamente',
-                  style: TextStyle().mediumText.copyWith(
-                    color: isDark ? Colors.white70 : colors.darkBlue,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 4.h),
+              SizedBox(height: context.percentHeight(0.04)),
 
               if (state.errorMessage != null)
                 Padding(
-                  padding: EdgeInsets.only(bottom: 2.h),
+                  padding: EdgeInsets.only(bottom: context.percentHeight(0.02)),
                   child: Text(
                     state.errorMessage!,
                     style: TextStyle().smallText.copyWith(color: colors.error),
@@ -289,7 +342,7 @@ class _TaskCreatePageState extends BaseState<TaskCreatePage, TaskCreateControlle
                         backgroundColor: isDark
                             ? theme.colorScheme.surface
                             : colors.lightBlue,
-                        padding: EdgeInsets.symmetric(vertical: 2.h),
+                        padding: EdgeInsets.symmetric(vertical: context.percentHeight(0.02)),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -311,7 +364,7 @@ class _TaskCreatePageState extends BaseState<TaskCreatePage, TaskCreateControlle
                         backgroundColor: state.isValid
                             ? colors.primaryBlue
                             : colors.gray.withOpacity(0.5),
-                        padding: EdgeInsets.symmetric(vertical: 2.h),
+                        padding: EdgeInsets.symmetric(vertical: context.percentHeight(0.02)),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -321,8 +374,8 @@ class _TaskCreatePageState extends BaseState<TaskCreatePage, TaskCreateControlle
                           : _createTask,
                       child: state.isSaving
                           ? SizedBox(
-                              height: 3.h,
-                              width: 3.h,
+                              height: context.percentHeight(0.03),
+                              width: context.percentHeight(0.03),
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
                                 color: Colors.white,
@@ -347,6 +400,89 @@ class _TaskCreatePageState extends BaseState<TaskCreatePage, TaskCreateControlle
     );
   }
 
+  Color _getTaskColor(TaskStatus status) {
+    final colors = ColorsApp.i;
+    switch (status) {
+      case TaskStatus.finalizado:
+        return colors.primaryBlue;
+      case TaskStatus.emProgresso:
+        return colors.success;
+      case TaskStatus.emAberto:
+        return colors.warning;
+    }
+  }
+
+  String _getStatusText(TaskStatus status) {
+    switch (status) {
+      case TaskStatus.finalizado:
+        return 'Concluído';
+      case TaskStatus.emProgresso:
+        return 'Em Progresso';
+      case TaskStatus.emAberto:
+        return 'Em Aberto';
+    }
+  }
+
+  IconData _getStatusIcon(TaskStatus status) {
+    switch (status) {
+      case TaskStatus.emAberto:
+        return Icons.hourglass_empty;
+      case TaskStatus.emProgresso:
+        return Icons.directions_run;
+      case TaskStatus.finalizado:
+        return Icons.check_circle;
+    }
+  }
+
+  Widget _buildStatusButton({
+    required BuildContext context,
+    required TaskStatus status,
+    required TaskStatus currentStatus,
+    required ColorsApp colors,
+    required bool isSelected,
+  }) {
+    final color = _getTaskColor(status); 
+    
+    return GestureDetector(
+      onTap: () {
+        controller.updateStatus(status);
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          vertical: context.percentHeight(0.01), 
+          horizontal: context.percentWidth(0.005),
+        ),
+        decoration: BoxDecoration(
+          color: isSelected ? color : color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? color : color.withOpacity(0.3),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              _getStatusIcon(status),
+              size: context.percentWidth(0.05).clamp(20, 24),
+              color: isSelected ? Colors.white : color,
+            ),
+            SizedBox(height: context.percentHeight(0.005)),
+            Text(
+              status.label,
+              textAlign: TextAlign.center,
+              style: TextStyle().smallText.copyWith(
+                color: isSelected ? Colors.white : color,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildCard({
     required ThemeData theme,
     required ColorsApp colors,
@@ -364,9 +500,9 @@ class _TaskCreatePageState extends BaseState<TaskCreatePage, TaskCreateControlle
             fontWeight: FontWeight.bold,
           ),
         ),
-        SizedBox(height: 1.h),
+        SizedBox(height: context.percentHeight(0.01)),
         Container(
-          padding: EdgeInsets.all(2.h),
+          padding: EdgeInsets.all(context.percentWidth(0.04)),
           decoration: BoxDecoration(
             color: isDark ? theme.colorScheme.surface : colors.lightBlue,
             borderRadius: BorderRadius.circular(16),

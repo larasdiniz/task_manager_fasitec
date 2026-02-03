@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sizer/sizer.dart';
 import 'package:task_manager/app/core/ui/base_state/base_state.dart';
 import 'package:task_manager/app/core/ui/base_state/base_status.dart'; 
 import 'package:task_manager/app/core/enums/task_status_enum.dart';
@@ -376,18 +375,25 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
         actions: [
           BlocBuilder<HomeController, HomeState>(
             builder: (context, state) {
-              return IconButton(
-                icon: Icon(Icons.add, size: 28.sp),
-                color: state.isSelectionMode 
-                  ? theme.disabledColor
-                  : theme.appBarTheme.titleTextStyle?.color ?? theme.appBarTheme.iconTheme?.color,
-                onPressed: state.isSelectionMode 
-                  ? null 
-                  : () => _navigateToCreateTask(context),
+              return Padding(
+                padding: EdgeInsets.only(
+                  right: context.percentWidth(0.05),
+                ),
+                child: IconButton(
+                  icon: Icon(
+                    Icons.add,
+                    size: context.percentWidth(0.08).clamp(24, 32),
+                  ),
+                  color: state.isSelectionMode 
+                    ? theme.disabledColor
+                    : theme.appBarTheme.titleTextStyle?.color ?? theme.appBarTheme.iconTheme?.color,
+                  onPressed: state.isSelectionMode 
+                    ? null 
+                    : () => _navigateToCreateTask(context),
+                ),
               );
             },
           ),
-          const SizedBox(width: 12),
         ],
       ),
 
@@ -1013,14 +1019,14 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
         children: [
           Icon(
             icon,
-            size: 28,
+            size: context.percentWidth(0.07).clamp(24, 32),
             color: isActive ? activeColor : inactiveColor,
           ),
           const SizedBox(height: 4),
           Text(
             label,
             style: TextStyle().smallText.copyWith(
-              fontSize: 12.sp,
+              fontSize: context.percentWidth(0.03).clamp(10, 14),
               color: isActive ? activeColor : inactiveColor,
             ),
           ),
