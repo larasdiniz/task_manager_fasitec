@@ -142,8 +142,6 @@ class _TaskCreatePageState extends BaseState<TaskCreatePage, TaskCreateControlle
 
   Widget _buildScaffold(BuildContext context, TaskCreateState state) {
     final theme = Theme.of(context);
-    final colors = ColorsApp.i;
-    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -162,7 +160,7 @@ class _TaskCreatePageState extends BaseState<TaskCreatePage, TaskCreateControlle
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back,
-            color: isDark ? Colors.white70 : colors.gray,
+            color: theme.appBarTheme.titleTextStyle?.color,
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),

@@ -14,16 +14,14 @@ import 'package:task_manager/fake_task_api.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Para desenvolvimento, use DevicePreview
+  // Para desenvolvimento, DevicePreview
   runApp(
     DevicePreview(
-      enabled: true, // Habilite/desabilite conforme necessário
-      builder: (context) => const App(), // Seu app original
+      enabled: true, 
+      builder: (context) => const App(),
     ),
   );
   
-  // Para produção, você pode usar:
-  // runApp(const App());
 }
 
 class App extends StatelessWidget {
@@ -43,11 +41,9 @@ class App extends StatelessWidget {
           return MaterialApp(
             title: 'Task Manager',
             debugShowCheckedModeBanner: false,
-            
-            // IMPORTANTE: DevicePreview precisa destas configurações
-            useInheritedMediaQuery: true, // Necessário para DevicePreview
-            locale: DevicePreview.locale(context), // Para internacionalização
-            builder: DevicePreview.appBuilder, // Builder do DevicePreview
+            useInheritedMediaQuery: true, 
+            locale: DevicePreview.locale(context), 
+            builder: DevicePreview.appBuilder, 
             
             theme: ThemeConfig.lightTheme,
             darkTheme: ThemeConfig.darkTheme,

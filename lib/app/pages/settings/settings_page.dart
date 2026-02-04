@@ -6,7 +6,6 @@ import 'package:task_manager/app/core/ui/extensions/size_extensions.dart';
 import 'package:task_manager/app/core/ui/extensions/text_style_extensions.dart';
 import 'package:task_manager/app/core/ui/styles/colors_app.dart';
 import 'package:task_manager/app/core/ui/theme/theme_manager.dart';
-import 'package:task_manager/app/core/utils/router_name_utils.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -18,26 +17,6 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   bool _notificationsEnabled = true;
   bool _syncEnabled = false;
-
-  void _navigateToHome(BuildContext context) {
-    Navigator.of(context).pushReplacementNamed(RouterNameUtils.getHomePage);
-  }
-
-  void _navigateToCategories(BuildContext context) {
-    // Implementar navegação para categorias quando tiver a página
-  }
-
-  void _navigateToGoals(BuildContext context) {
-    // Implementar navegação para metas quando tiver a página
-  }
-
-  void _navigateToStatistics(BuildContext context) {
-    // Implementar navegação para estatísticas quando tiver a página
-  }
-
-  void _navigateToSettings(BuildContext context) {
-    // Já está na página de configurações
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +32,15 @@ class _SettingsPageState extends State<SettingsPage> {
         backgroundColor: theme.appBarTheme.backgroundColor,
         elevation: 0,
         centerTitle: true,
-        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: theme.appBarTheme.titleTextStyle?.color,
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
         title: Text(
           'Configurações',
           style: TextStyle().largeText.copyWith(
@@ -181,35 +168,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: Text(
                   'Task Manager v1.0.0',
                   style: TextStyle().smallText.copyWith(
-                    color: isDark ? colors.textSecondaryDark : colors.textSecondaryLight, // ✅
+                    color: isDark ? colors.textSecondaryDark : colors.textSecondaryLight,
                   ),
                 ),
               ),
             ],
           ),
-        ),
-      ),
-
-      bottomNavigationBar: Container(
-        height: 80,
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(
-              color: isDark ? colors.darkGray : colors.lightGray, // ✅
-              width: 0.5,
-            ),
-          ),
-          color: isDark ? colors.darkSurface : colors.lightSurface, // ✅
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildNavItem(Icons.task, 'Tarefas', false, _navigateToHome),
-            _buildNavItem(Icons.category, 'Categorias', false, _navigateToCategories),
-            _buildNavItem(Icons.flag, 'Metas', false, _navigateToGoals),
-            _buildNavItem(Icons.bar_chart, 'Estatísticas', false, _navigateToStatistics),
-            _buildNavItem(Icons.settings, 'Config', true, _navigateToSettings),
-          ],
         ),
       ),
     );
@@ -243,10 +207,10 @@ class _SettingsPageState extends State<SettingsPage> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: EdgeInsets.all(2.h),
       decoration: BoxDecoration(
-        color: isDark ? colors.cardBackgroundDark : colors.cardBackgroundLight, // ✅
+        color: isDark ? colors.cardBackgroundDark : colors.cardBackgroundLight,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isDark ? colors.cardBorderDark : colors.cardBorderLight, // ✅
+          color: isDark ? colors.cardBorderDark : colors.cardBorderLight,
           width: 1,
         ),
       ),
@@ -267,7 +231,7 @@ class _SettingsPageState extends State<SettingsPage> {
               Text(
                 subtitle,
                 style: TextStyle().smallText.copyWith(
-                  color: isDark ? colors.textSecondaryDark : colors.textSecondaryLight, // ✅
+                  color: isDark ? colors.textSecondaryDark : colors.textSecondaryLight,
                 ),
               ),
             ],
@@ -307,41 +271,6 @@ class _SettingsPageState extends State<SettingsPage> {
           borderRadius: BorderRadius.circular(8),
         ),
         onTap: onTap,
-      ),
-    );
-  }
-
-  Widget _buildNavItem(
-    IconData icon, 
-    String label, 
-    bool isActive,
-    Function(BuildContext) onTap,
-  ) {
-    final theme = Theme.of(context);
-    final colors = ColorsApp.i;
-    final isDark = theme.brightness == Brightness.dark;
-    final activeColor = theme.colorScheme.primary; 
-    final inactiveColor = isDark ? colors.textSecondaryDark : colors.textSecondaryLight; // ✅
-
-    return GestureDetector(
-      onTap: () => onTap(context),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            size: 28,
-            color: isActive ? activeColor : inactiveColor,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle().smallText.copyWith(
-              fontSize: 12.sp,
-              color: isActive ? activeColor : inactiveColor,
-            ),
-          ),
-        ],
       ),
     );
   }

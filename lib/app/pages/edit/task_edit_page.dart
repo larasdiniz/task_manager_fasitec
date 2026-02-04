@@ -180,9 +180,7 @@ class _TaskEditPageState extends BaseState<TaskEditPage, TaskEditController> {
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back,
-            color: isDark ? 
-              theme.colorScheme.onSurface.withOpacity(0.7) : 
-              colors.gray,
+            color: theme.appBarTheme.titleTextStyle?.color,
           ),
           onPressed: () => Navigator.pop(context),
         ),

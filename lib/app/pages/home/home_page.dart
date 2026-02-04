@@ -373,6 +373,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
         ),
         iconTheme: theme.appBarTheme.iconTheme,
         actions: [
+          // Botão de configurações (substitui o +)
           BlocBuilder<HomeController, HomeState>(
             builder: (context, state) {
               return Padding(
@@ -381,15 +382,15 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
                 ),
                 child: IconButton(
                   icon: Icon(
-                    Icons.add,
-                    size: context.percentWidth(0.08).clamp(24, 32),
+                    Icons.settings,
+                    size: context.percentWidth(0.07).clamp(24, 32),
                   ),
                   color: state.isSelectionMode 
                     ? theme.disabledColor
                     : theme.appBarTheme.titleTextStyle?.color ?? theme.appBarTheme.iconTheme?.color,
                   onPressed: state.isSelectionMode 
                     ? null 
-                    : () => _navigateToCreateTask(context),
+                    : () => _navigateToSettings(context),
                 ),
               );
             },
@@ -430,341 +431,435 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
               );
             }
 
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            return Stack(
               children: [
-                // Cards de estatísticas
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: context.percentWidth(0.05),
-                    vertical: 16,
-                  ),
-                  child: Row(
-                    children: [
-                      // Card: Taxa de conclusão
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: isDark
-                                ? [colors.darkBlueGradient, colors.primaryBlue]
-                                : [colors.darkBlue, colors.primaryBlue],
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Taxa de conclusão",
-                                style: TextStyle().smallText.copyWith(
-                                  color: colors.white,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Cards de estatísticas
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: context.percentWidth(0.05),
+                        vertical: 16,
+                      ),
+                      child: Row(
+                        children: [
+                          // Card: Taxa de conclusão
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: isDark
+                                    ? [colors.darkBlueGradient, colors.primaryBlue]
+                                    : [colors.darkBlue, colors.primaryBlue],
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
                                 ),
+                                borderRadius: BorderRadius.circular(16),
                               ),
-                              const SizedBox(height: 8),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    "${state.completionRate.toStringAsFixed(0)}%",
-                                    style: TextStyle().largeText.copyWith(
+                                    "Taxa de conclusão",
+                                    style: TextStyle().smallText.copyWith(
+                                      color: colors.white,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "${state.completionRate.toStringAsFixed(0)}%",
+                                        style: TextStyle().largeText.copyWith(
+                                          color: colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Icon(
+                                        Icons.verified,
+                                        color: colors.white,
+                                        size: 28,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          // Card: Em andamento
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: isDark
+                                    ? [Color(0xFF1E40AF), Color(0xFF3B82F6)] 
+                                    : [colors.lightBlue, colors.lightBlue],
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                ),
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: isDark 
+                                  ? [
+                                      BoxShadow(
+                                        color: colors.primaryBlue.withOpacity(0.3),
+                                        blurRadius: 8,
+                                        offset: Offset(0, 4),
+                                      )
+                                    ]
+                                  : [],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Em andamento",
+                                    style: TextStyle().smallText.copyWith(
+                                      color: isDark ? colors.white : colors.darkBlue,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            "${state.tasksInProgress}",
+                                            style: TextStyle().largeText.copyWith(
+                                              color: isDark ? colors.white : colors.darkBlue,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            "tarefas",
+                                            style: TextStyle().smallText.copyWith(
+                                              color: isDark ? colors.white.withOpacity(0.9) : colors.darkBlue.withOpacity(0.8),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Icon(
+                                        Icons.directions_run,
+                                        color: isDark ? colors.white : colors.darkBlue,
+                                        size: 28,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Filtros e botão de seleção
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: context.percentWidth(0.05),
+                      ),
+                      child: Row(
+                        children: [
+                          // Dropdown de status
+                          Expanded(
+                            child: Container(
+                              height: 50,
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: isDark
+                                    ? [colors.darkBlueGradient, colors.primaryBlue]
+                                    : [colors.darkBlue, colors.primaryBlue],
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                ),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    "Status",
+                                    style: TextStyle().smallText.copyWith(
                                       color: colors.white,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  Icon(
-                                    Icons.verified,
-                                    color: colors.white,
-                                    size: 28,
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: DropdownButtonHideUnderline(
+                                      child: DropdownButton<String>(
+                                        value: state.selectedStatusFilter,
+                                        dropdownColor: isDark ? colors.darkBlue : colors.darkBlue,
+                                        iconEnabledColor: colors.white,
+                                        style: TextStyle().smallText.copyWith(color: colors.white),
+                                        items: ['Todos', 'Em Aberto', 'Em Progresso', 'Finalizado']
+                                            .map(
+                                              (status) => DropdownMenuItem(
+                                                value: status,
+                                                child: Text(
+                                                  status,
+                                                  style: TextStyle().smallText.copyWith(color: colors.white),
+                                                ),
+                                              ),
+                                            )
+                                            .toList(),
+                                        onChanged: (value) {
+                                          if (value != null) {
+                                            controller.updateStatusFilter(value);
+                                          }
+                                        },
+                                        isExpanded: true,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      // Card: Em andamento
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: isDark
-                                ? [Color(0xFF1E40AF), Color(0xFF3B82F6)] 
-                                : [colors.lightBlue, colors.lightBlue],
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
                             ),
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: isDark 
-                              ? [
-                                  BoxShadow(
-                                    color: colors.primaryBlue.withOpacity(0.3),
-                                    blurRadius: 8,
-                                    offset: Offset(0, 4),
-                                  )
-                                ]
-                              : [],
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Em andamento",
-                                style: TextStyle().smallText.copyWith(
-                                  color: isDark ? colors.white : colors.darkBlue,
+                          const SizedBox(width: 12),
+                          // Botão de seleção
+                          Expanded(
+                            child: Container(
+                              height: 50,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: isDark
+                                    ? [Color(0xFF1E40AF), Color(0xFF3B82F6)] 
+                                    : [colors.lightBlue, colors.lightBlue],
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
                                 ),
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: isDark 
+                                  ? [
+                                      BoxShadow(
+                                        color: colors.primaryBlue.withOpacity(0.3),
+                                        blurRadius: 8,
+                                        offset: Offset(0, 4),
+                                      )
+                                    ]
+                                  : [],
                               ),
-                              const SizedBox(height: 8),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                        "${state.tasksInProgress}",
-                                        style: TextStyle().largeText.copyWith(
+                              child: BlocBuilder<HomeController, HomeState>(
+                                builder: (context, state) {
+                                  return ElevatedButton(
+                                    onPressed: () => _toggleSelectionMode(),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.transparent,
+                                      foregroundColor: isDark ? colors.white : colors.darkBlue,
+                                      shadowColor: Colors.transparent,
+                                      elevation: 0,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      padding: EdgeInsets.symmetric(horizontal: 12),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          state.isSelectionMode ? Icons.close : Icons.select_all,
+                                          size: 20,
                                           color: isDark ? colors.white : colors.darkBlue,
-                                          fontWeight: FontWeight.bold,
                                         ),
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        "tarefas",
-                                        style: TextStyle().smallText.copyWith(
-                                          color: isDark ? colors.white.withOpacity(0.9) : colors.darkBlue.withOpacity(0.8),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          state.isSelectionMode ? 'Sair' : 'Selecionar',
+                                          style: TextStyle().smallText.copyWith(
+                                            color: isDark ? colors.white : colors.darkBlue,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                  Icon(
-                                    Icons.directions_run,
-                                    color: isDark ? colors.white : colors.darkBlue,
-                                    size: 28,
-                                  ),
-                                ],
+                                      ],
+                                    ),
+                                  );
+                                },
                               ),
-                            ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    
+                    // Banner de seleção
+                    if (state.isSelectionMode)
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        margin: EdgeInsets.symmetric(
+                          horizontal: context.percentWidth(0.05),
+                        ),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: isDark
+                              ? [Color(0xFF1E40AF).withOpacity(0.8), Color(0xFF3B82F6).withOpacity(0.8)]
+                              : [colors.primaryBlue.withOpacity(0.1), colors.primaryBlue.withOpacity(0.05)],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: isDark ? colors.primaryBlue.withOpacity(0.5) : colors.primaryBlue.withOpacity(0.3),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Filtros e botão de seleção
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: context.percentWidth(0.05),
-                  ),
-                  child: Row(
-                    children: [
-                      // Dropdown de status
-                      Expanded(
-                        child: Container(
-                          height: 50,
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: isDark
-                                ? [colors.darkBlueGradient, colors.primaryBlue]
-                                : [colors.darkBlue, colors.primaryBlue],
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              state.hasSelectedTasks
+                                ? '${state.selectedCount} tarefa(s) selecionada(s)'
+                                : 'Nenhuma tarefa selecionada',
+                              style: TextStyle().smallText.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: isDark ? colors.white : theme.colorScheme.primary,
+                              ),
                             ),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Row(
-                            children: [
-                              Text(
-                                "Status",
+                            TextButton(
+                              onPressed: () => _showSelectionMenu(context),
+                              child: Text(
+                                'Ações',
                                 style: TextStyle().smallText.copyWith(
-                                  color: colors.white,
+                                  color: isDark ? colors.white : theme.colorScheme.primary,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: DropdownButtonHideUnderline(
-                                  child: DropdownButton<String>(
-                                    value: state.selectedStatusFilter,
-                                    dropdownColor: isDark ? colors.darkBlue : colors.darkBlue,
-                                    iconEnabledColor: colors.white,
-                                    style: TextStyle().smallText.copyWith(color: colors.white),
-                                    items: ['Todos', 'Em Aberto', 'Em Progresso', 'Finalizado']
-                                        .map(
-                                          (status) => DropdownMenuItem(
-                                            value: status,
-                                            child: Text(
-                                              status,
-                                              style: TextStyle().smallText.copyWith(color: colors.white),
-                                            ),
-                                          ),
-                                        )
-                                        .toList(),
-                                    onChanged: (value) {
-                                      if (value != null) {
-                                        controller.updateStatusFilter(value);
-                                      }
-                                    },
-                                    isExpanded: true,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                    if (state.isSelectionMode)
+                      const SizedBox(height: 12),
+
+                    // Lista de tarefas
+                    Expanded(
+                      child: _buildTaskList(state),
+                    ),
+                  ],
+                ),
+
+                // Botão flutuante de adicionar (estilo Meta AI do WhatsApp)
+                Positioned(
+                  bottom: 24,
+                  right: 24,
+                  child: BlocBuilder<HomeController, HomeState>(
+                    builder: (context, state) {
+                      if (state.isSelectionMode) {
+                        return const SizedBox(); // Oculta no modo seleção
+                      }
+                      
+                      return GestureDetector(
+                        onTap: () => _navigateToCreateTask(context),
+                        child: Container(
+                          width: 70,
+                          height: 70,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              colors: [
+                                colors.primaryBlue,
+                                Color(0xFF3B82F6),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: colors.primaryBlue.withOpacity(0.5),
+                                blurRadius: 15,
+                                spreadRadius: 2,
+                                offset: const Offset(0, 4),
+                              ),
+                              BoxShadow(
+                                color: colors.primaryBlue.withOpacity(0.3),
+                                blurRadius: 30,
+                                spreadRadius: 1,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: Stack(
+                            children: [
+                              // Efeito de brilho interno
+                              Positioned(
+                                top: 10,
+                                left: 10,
+                                child: Container(
+                                  width: 50,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.white.withOpacity(0.2),
+                                        Colors.transparent,
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              
+                              // Ícone com efeito
+                              Center(
+                                child: Container(
+                                  width: 30,
+                                  height: 30,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.white.withOpacity(0.1),
+                                  ),
+                                  child: Icon(
+                                    Icons.add,
+                                    size: 28,
+                                    color: Colors.white,
+                                    shadows: [
+                                      Shadow(
+                                        color: Colors.black.withOpacity(0.2),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              
+                              // Efeito de brilho externo (pulsante)
+                              Positioned.fill(
+                                child: IgnorePointer(
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 2000),
+                                    curve: Curves.easeInOut,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      gradient: RadialGradient(
+                                        colors: [
+                                          Colors.white.withOpacity(0.1),
+                                          Colors.transparent,
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
                             ],
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      // Botão de seleção
-                      Expanded(
-                        child: Container(
-                          height: 50,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: isDark
-                                ? [Color(0xFF1E40AF), Color(0xFF3B82F6)] 
-                                : [colors.lightBlue, colors.lightBlue],
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: isDark 
-                              ? [
-                                  BoxShadow(
-                                    color: colors.primaryBlue.withOpacity(0.3),
-                                    blurRadius: 8,
-                                    offset: Offset(0, 4),
-                                  )
-                                ]
-                              : [],
-                          ),
-                          child: BlocBuilder<HomeController, HomeState>(
-                            builder: (context, state) {
-                              return ElevatedButton(
-                                onPressed: () => _toggleSelectionMode(),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.transparent,
-                                  foregroundColor: isDark ? colors.white : colors.darkBlue,
-                                  shadowColor: Colors.transparent,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  padding: EdgeInsets.symmetric(horizontal: 12),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      state.isSelectionMode ? Icons.close : Icons.select_all,
-                                      size: 20,
-                                      color: isDark ? colors.white : colors.darkBlue,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      state.isSelectionMode ? 'Sair' : 'Selecionar',
-                                      style: TextStyle().smallText.copyWith(
-                                        color: isDark ? colors.white : colors.darkBlue,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
+                      );
+                    },
                   ),
-                ),
-                const SizedBox(height: 20),
-                
-                // Banner de seleção
-                if (state.isSelectionMode)
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    margin: EdgeInsets.symmetric(
-                      horizontal: context.percentWidth(0.05),
-                    ),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: isDark
-                          ? [Color(0xFF1E40AF).withOpacity(0.8), Color(0xFF3B82F6).withOpacity(0.8)]
-                          : [colors.primaryBlue.withOpacity(0.1), colors.primaryBlue.withOpacity(0.05)],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                      ),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: isDark ? colors.primaryBlue.withOpacity(0.5) : colors.primaryBlue.withOpacity(0.3),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          state.hasSelectedTasks
-                            ? '${state.selectedCount} tarefa(s) selecionada(s)'
-                            : 'Nenhuma tarefa selecionada',
-                          style: TextStyle().smallText.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: isDark ? colors.white : theme.colorScheme.primary,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () => _showSelectionMenu(context),
-                          child: Text(
-                            'Ações',
-                            style: TextStyle().smallText.copyWith(
-                              color: isDark ? colors.white : theme.colorScheme.primary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                if (state.isSelectionMode)
-                  const SizedBox(height: 12),
-
-                // Lista de tarefas
-                Expanded(
-                  child: _buildTaskList(state),
                 ),
               ],
             );
           },
-        ),
-      ),
-
-      bottomNavigationBar: Container(
-        height: 80,
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(
-              color: isDark ? colors.darkGray : colors.lightGray,
-              width: 0.5,
-            ),
-          ),
-          color: isDark ? colors.darkSurface : colors.lightSurface,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildNavItem(Icons.task, 'Tarefas', true),
-            _buildNavItem(Icons.category, 'Categorias', false),
-            _buildNavItem(Icons.flag, 'Metas', false),
-            _buildNavItem(Icons.bar_chart, 'Estatísticas', false),
-            _buildNavItem(Icons.settings, 'Config', false),
-          ],
         ),
       ),
     );
@@ -807,7 +902,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
             const SizedBox(height: 8),
             Text(
               state.selectedStatusFilter == 'Todos'
-                  ? 'Clique no + para adicionar'
+                  ? 'Clique no botão + para adicionar'
                   : 'Tente selecionar outro filtro',
               style: TextStyle().smallText.copyWith(
                 color: theme.disabledColor.withOpacity(0.8),
@@ -821,6 +916,7 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
     return ListView.builder(
       padding: EdgeInsets.symmetric(
         horizontal: context.percentWidth(0.05),
+        vertical: 8,
       ),
       itemCount: state.filteredTaskList.length,
       itemBuilder: (context, index) {
@@ -998,40 +1094,6 @@ class _HomePageState extends BaseState<HomePage, HomeController> {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildNavItem(IconData icon, String label, bool isActive) {
-    final theme = Theme.of(context);
-    final colors = ColorsApp.i;
-    final isDark = theme.brightness == Brightness.dark;
-    final activeColor = theme.colorScheme.primary; 
-    final inactiveColor = isDark ? colors.textSecondaryDark : colors.textSecondaryLight;
-
-    return GestureDetector(
-      onTap: () {
-        if (label == 'Config') {
-          _navigateToSettings(context);
-        }
-      },
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            size: context.percentWidth(0.07).clamp(24, 32),
-            color: isActive ? activeColor : inactiveColor,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle().smallText.copyWith(
-              fontSize: context.percentWidth(0.03).clamp(10, 14),
-              color: isActive ? activeColor : inactiveColor,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
